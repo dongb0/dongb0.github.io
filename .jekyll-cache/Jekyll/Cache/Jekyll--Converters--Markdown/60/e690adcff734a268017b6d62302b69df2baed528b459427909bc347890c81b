@@ -1,0 +1,119 @@
+I"�<p>从中挑一个能安装成功的就行。</p>
+
+<h3 id="锐速serverspeeder">锐速serverspeeder</h3>
+
+<p>2019-11 update: CentOS 7安装成功，虽然需要换内核但是有现成的一键脚本。关于锐速可以到<a href="https://github.com/91yun/serverspeeder/">项目页面</a>查看，但作者博客和一键脚本资源在墙外。<a href="https://www.91yun.co/serverspeeder91yun">支持内核列表</a></p>
+
+<p>我创建的vps服务器操作系统选择是CentOS 7，内核版本是<code class="highlighter-rouge">3.10.0-1062.1.2.el7.x86_64</code>，需要换成<code class="highlighter-rouge">3.10.0-229.1.2.el7.x86_64</code></p>
+
+<p><img src="/img/in-post/post-ssr/vultr-centOS-7-kernel.jpg" alt="centOS-7-kernel" /></p>
+
+<p>CentOS 7换内核</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>    #脚本1
+    wget -N --no-check-certificate https://freed.ga/kernel/ruisu.sh &amp;&amp; bash ruisu.sh
+
+    #备用脚本
+    rpm -ivh http://soft.91yun.pw/ISO/Linux/CentOS/kernel/kernel-3.10.0-229.1.2.el7.x86_64.rpm --force
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>脚本1执行完会自动重启，xshell重新连接就可以。如果用的是脚本<a href="https://www.91yun.co/archives/795">2</a>，可以用<code class="highlighter-rouge">rpm -qa | grep kernel</code>查看是包含<code class="highlighter-rouge">3.10.0-229.1.2.el7.x86_64</code>。（其实看不看无所谓，重启就行）</p>
+
+<p><img src="/img/in-post/post-ssr/centOS7-cmd2-kernel.jpg" alt="change-kernel-cmd2" /></p>
+
+<p>重启之后（记得再连接服务器），查看更换内核是否成功</p>
+
+<p><img src="/img/in-post/post-ssr/vultr-centOS-7-new-kernel.jpg" alt="change-kernel-success" /></p>
+
+<p>然后就可以执行以下命令安装serverspeeder</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>    wget -N --no-check-certificate https://github.com/91yun/serverspeeder/raw/master/serverspeeder-v.sh &amp;&amp; bash serverspeeder-v.sh CentOS 7.1 3.10.0-229.1.2.el7.x86_64 x64 3.10.61.12 serverspeeder_2727
+
+    #备用脚本
+    wget -N --no-check-certificate https://github.com/91yun/serverspeeder/raw/master/serverspeeder-v.sh &amp;&amp; bash serverspeeder-v.sh CentOS 7.1 3.10.0-229.1.2.el7.x86_64 x64 3.11.20.4 serverspeeder_3283
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>完成后应该显示</p>
+
+<p><img src="/img/in-post/post-ssr/serverspeeder-success.jpg" alt="serverspeeder-success" /></p>
+
+<p>到此锐速安装完成</p>
+
+<hr />
+
+<p>卸载锐速：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>chattr -i /serverspeeder/etc/apx* &amp;&amp; /serverspeeder/bin/serverSpeeder.sh uninstall -f
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>锐速一键包<a href="https://www.91yun.co/serverspeeder91yun">合集</a></p>
+
+<hr />
+
+<h3 id="bbr">BBR</h3>
+
+<p>据说适用：CentOS 6+，Debian 7+，Ubuntu 12+</p>
+
+<p>在CentOS 7安装成功</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>wget --no-check-certificate https://github.com/teddysun/across/raw/master/bbr.sh &amp;&amp; bash ./bbr.sh
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>安装完成后会提示重启。重启之后，再次连接，执行<code class="highlighter-rouge">lsmod | grep bbr</code>验证bbr是否启动。返回值有<code class="highlighter-rouge">tcp_bbr</code>说明bbr已启动。</p>
+
+<p>到此bbr安装完成。</p>
+
+<hr />
+
+<h3 id="nanqinlang-bbr">nanqinlang bbr</h3>
+
+<p>适用：Debian 7+，CentOS 6/CentOS 7</p>
+
+<p>亲测Debian 8, CentOS 7安装成功，可在项目<a href="https://github.com/tcp-nanqinlang/wiki/wiki/general">wiki</a>看详细介绍</p>
+
+<p>Debian:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>    wget --no-check-certificate https://github.com/tcp-nanqinlang/general/releases/download/3.4.2.1/tcp_nanqinlang-fool-1.3.0.sh
+
+    bash tcp_nanqinlang-fool-1.3.0.sh
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>CentOS:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>    wget --no-check-certificate https://raw.githubusercontent.com/tcp-nanqinlang/general/master/General/CentOS/bash/tcp_nanqinlang-1.3.2.sh
+
+    bash tcp_nanqinlang-1.3.2.sh
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>首先选择1更换内核，Debian 8会出现蓝屏，选择no(注意看提示为是否<strong>放弃</strong>删除内核)继续，完成后reboot，再重新连接服务器。CentOS 7直接安装完成然后重启。</p>
+
+<p><img src="/img/in-post/post-ssr/nanqinlang-bbr.jpg" alt="nanqinlang-bbr" /></p>
+
+<p>连接成功后，重新执行脚本(就是bash那一行命令)，选择2安装并开启算法，安装完成如图。</p>
+
+<p><img src="/img/in-post/post-ssr/nanqinlang-bbr-success.jpg" alt="nanqinlang-bbr-success" /></p>
+
+<p>同样可以使用<code class="highlighter-rouge">lsmod | grep nanqinlang</code>查看是否启动。</p>
+
+<p>到此nanqinlang bbr完成安装</p>
+
+<h2 id="现在新世界的大门为你打开了">现在，新世界的大门为你打开了</h2>
+
+:ET

@@ -1,0 +1,117 @@
+I"�<p>今天不知道怎么就把虚拟机搞崩了，开不了机，暂时没找到解决办法决定简单粗暴重装一下。归纳一下目前需要的各种配置，以免每次都得再找。</p>
+
+<h3 id="1-apt换源">1. apt换源</h3>
+
+<p><a href="https://mirrors4.tuna.tsinghua.edu.cn/help/ubuntu/">清华大学开源软件镜像站</a><br />
+打开<code class="highlighter-rouge">/etc/apt/sources.list</code>，内容替换为 <del>(头铁，我就不备份了)</del></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><del>现在还不知道源码镜像(注释第1行)如何影响速度，对apt有必要进一步了解。</del></p>
+
+<h3 id="2-安装各种杂碎">2. 安装各种杂碎</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>  sudo apt install python
+
+  sudo apt install maven
+
+  sudo apt install mysql-server
+  sudo mysql_secure_installation #mysql 5.7
+  sudo apt install mysql-client
+
+  sudo apt install net-tools
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>比较详细的ubuntu 18.04 安装mysql 5.7出现问题的一些<a href="https://wangxin1248.github.io/linux/2018/07/ubuntu18.04-install-mysqlserver.html">解决方法</a></p>
+
+<h3 id="3-maven更换为阿里中央仓库">3. maven更换为阿里中央仓库</h3>
+
+<p>来源:<a href="https://help.aliyun.com/document_detail/102512.html?spm=a2c40.aliyun_maven_repo.0.0.36183054jJW4ww#h2-u914Du7F6Eu6307u53572">阿里云公共代理库配置指南</a></p>
+
+<p>maven安装目录下的<code class="highlighter-rouge">conf/setting.xml</code>(linux ==&gt; <code class="highlighter-rouge">whereis maven</code>查找，windows ==&gt; 自己设的自己记)，加入</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre>&lt;mirror&gt;
+    &lt;id&gt;aliyunmaven&lt;/id&gt;
+    &lt;mirrorOf&gt;*&lt;/mirrorOf&gt;
+    &lt;name&gt;阿里云公共仓库&lt;/name&gt;
+    &lt;url&gt;https://maven.aliyun.com/repository/public&lt;/url&gt;
+&lt;/mirror&gt;
+
+&lt;!--   来自其他博客，作用区别待查
+&lt;mirrors&gt;
+  &lt;mirror&gt;
+    &lt;id&gt;alimaven&lt;/id&gt;
+    &lt;name&gt;aliyun maven&lt;/name&gt;
+    &lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public/&lt;/url&gt;
+    &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;        
+  &lt;/mirror&gt;
+&lt;/mirrors&gt;
+--!&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>#### python2.7无法安装</p>
+
+<p>提示若干依赖未安装，同时安装依赖失败。<br />
+  查到<a href="https://blog.csdn.net/manjianchao/article/details/77921284">解决方案</a>，使用aptitude安装。</p>
+
+<p>aptitude用法的介绍，看<a href="">这里</a></p>
+
+<p>&lt;!– <br />
+  提示权限问题(如下)请加上sudo或者切换到root用户</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>$ aptitude install python
+E: Could not open lock file /var/lib/dpkg/lock-frontend - open (13: Permission denied)
+E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), are you root?
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>–!&gt;</p>
+
+<h3 id="vscode插件汇总">vscode插件汇总</h3>
+:ET

@@ -1,0 +1,1 @@
+> He is too lazy and doesn't write anything.
