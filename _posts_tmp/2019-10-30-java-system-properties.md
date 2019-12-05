@@ -6,6 +6,7 @@ author: "Dongbo"
 header-style: text
 tags:
   - Java
+  - note
 ---
 
 what is java system properties?

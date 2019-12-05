@@ -16,7 +16,7 @@ description: ""
         {% endif %}
         <div class="post-content-preview">
             {% if post.lang == 'en' %}
-                {{ post.content | strip_html | truncate:300 }}
+                {{ post.content | strip_html | truncate:200 }}
             {% else %}
                 {{ post.content | strip_html | truncate:100 }}
             {% endif %}

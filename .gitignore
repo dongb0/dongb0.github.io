@@ -1,7 +1,5 @@
 _site
-_posts/_draft
-_posts/_archive
-_archive
+_posts_tmp/
 node_modules
 .vscode
 *.log
@@ -9,3 +7,4 @@ node_modules
 .DS_Store
 */.DS_Store
 */*/.DS_Store
+.jekyll-cache/

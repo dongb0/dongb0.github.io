@@ -17,15 +17,3 @@ tags:
 3. shell执行`sudo Desktop/vmware-tools-distrib/vmware-install.pl -d`。重启虚拟机，安装完成。
 
 
-### Vmware Ubuntu Network Management异常
-
-
-如何查看服务是否正常运行？
-
-
-
-ubuntu 18.04
-
-桌面使用gnome  
-gnome-shell --version
-

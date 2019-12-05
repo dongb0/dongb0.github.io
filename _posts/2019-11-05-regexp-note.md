@@ -54,7 +54,7 @@ tags:
 | `(?<=pattern)` | 反向预查 <br> `(?<=J)a`匹配"Java6, Java7"的结果为J`a`va6, J`a`va7|
 | `(?<!pattern)` | 反向否定预查 | 
 
-<mute>正/反向预查部分例子来自于<https://my.oschina.net/lxpan/blog/27907></mute> 
+正/反向预查部分例子来自于<https://my.oschina.net/lxpan/blog/27907>
 
 Q: 为什么要使用`(?:pattern)`匹配但是不捕获分组?   
 ......为什么呢? 是不是存在可以不捕获但是必须分组的情况? 那么这种情况下就算捕获了会出现什么影响呢?
