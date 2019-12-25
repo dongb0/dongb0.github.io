@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "HTTP | TLS - Basic"
+title: "HTTPS | TLS - Basic"
 subtitle: 
 author: "Dongbo"
 header-style: text
