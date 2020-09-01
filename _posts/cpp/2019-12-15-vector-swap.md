@@ -20,13 +20,12 @@ tags:
 然后决定找 vs 的 `vector` 文件看看。
 
 
-### `vector<_Ty, _Alloc>::swap()`
-
-省略了`template<class _Ty,	class _Alloc = allocator<_Ty> >`部分，太长了放不下。
+### `template<class _Ty,	class _Alloc = allocator<_Ty> >`<br>`void vector<_Ty, _Alloc>::swap(_Myt& _Right)`
 
 首先找到 vector 的 `swap()` 函数
 
     // 文件路径：Visual studio2015/VC/2015/include/vector   line 1545
+    // typedef 
     void swap(_Myt& _Right)
       _NOEXCEPT_OP(_Alty::propagate_on_container_swap::value
         || _Alty::is_always_equal::value)
@@ -42,7 +41,12 @@ tags:
       }
 
 `_Pocs(this->_Getal(), _Right._Getal());`是用于交换 `_Alloc` 的，应该无关紧要就不看了。
-`_Myfirst()`获取 vector 使用空间的头指针，`_Mylast()`获取目前使用空间的尾指针，`_Myend()`获取已开辟空间的尾指针。这三个函数继承自`_Vector_alloc<>`。而`_Swap_adl()`函数定义如下：
+`_Myfirst()`获取 vector 使用空间的头指针，`_Mylast()`获取目前使用空间的尾指针，`_Myend()`获取已开辟空间的尾指针。
+
+定义在` `中，由` `创建。
+
+
+而`_Swap_adl()`函数定义如下：
 
     template<class _Ty> inline
       void _Swap_adl(_Ty& _Left, _Ty& _Right)
@@ -51,9 +55,9 @@ tags:
       swap(_Left, _Right);
       }
 
-再往下定位不到函数定义了，但是应该是个交换参数`_Left`和`_Right`的简单函数。所以这三次调用 `_Swap_adl()` 交换了两个 vector 的头尾指针和 end 指针。
+再往下定位不到函数定义了，但是应该是个交换参数`_Left`和`_Right`的简单函数。所以这三次调用 `_Swap_adl()` 交换了 vector 的头尾指针和 end 指针。
 
-那么还有`_Swap_all()`函数我们看看是做什么的。这个函数也是 `vector` 继承自 `_Vector_alloc<>` 的。拆开几层套娃之后，最后来到了这个地方。
+那么还有`_Swap_all()`函数我们看看是做什么的。这个函数也是 `vector` 继承自 `_Vector_alloc` 的。拆开几层继承套娃之后，最后来到了这个地方。
 
     inline void _Container_base12::_Swap_all(_Container_base12& _Right)
       {	// swap all iterators
@@ -108,7 +112,7 @@ tags:
 
 那么通过浏览这几个结构体的定义，我们彻底弄清楚了`_Swap_all()`函数就是交换两个迭代器（通过交换`_Container_proxy`的指针）。但是 vector 内平时并不需要存放 iterator 类型，所以这个函数对 vector 应该也没起作用。
 
-`_Myfirst, _Mylast, _Myend`三个指针属于 vector 的父类，相当于是 vector 拥有的，与迭代器没什么关系。
+`_Myfirst, _Mylast, _Myend`三个指针是在 vector 的父类中创建的，与迭代器没什么关系。
 这与『STL源码剖析』中介绍的 SGI STL 实现版本差不多。但是 SGI STL 版本可就清晰多了，
 
     //摘自『STL源码剖析』P117
