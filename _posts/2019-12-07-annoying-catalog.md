@@ -41,7 +41,7 @@ tags:
         }
     });
 
-查了半天，能 Google 出来的除了 Jekyll 官方的教程和文档之外，大部分有相关内容的博客都是大同小异，即通过 kramdown 给标题生成Id，然后就能通过 Id 获取元素并进行修改，大部分甚至还没官网说得清楚。可是我没有找到修改元素和添加内容的代码。这里还多学了个缩写 Toc, Table of contents，不然有些博客里写 toc 我还真不知道是什么。
+查了半天，能 Google 出来的除了 Jekyll 官方的教程和文档之外，大部分有相关内容的博客都是大同小异，即通过 kramdown 给标题生成Id，然后就能通过 Id 获取元素并进行修改，大部分甚至还没官网说得清楚。可是我没有找到修改元素和添加内容的代码。（Toc, Table of contents，有些博文老用这个缩写，刚看到的时候我是一脸懵逼）
 
 > kramdown supports the automatic generation of the table of contents of all headers that have an ID set. 
 

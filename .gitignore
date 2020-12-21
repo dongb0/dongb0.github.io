@@ -1,5 +1,4 @@
 _site
-_posts_tmp
 node_modules
 .vscode
 *.log
