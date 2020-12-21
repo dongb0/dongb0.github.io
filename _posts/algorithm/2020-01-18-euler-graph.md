@@ -1,0 +1,20 @@
+---
+layout: post
+title: "欧拉定理 | 判断欧拉回路"
+subtitle: 
+author: "Dongbo"
+header-style: text
+mathjax: true
+hidden: true
+tags:
+  - algorithm
+---
+
+判断欧拉回路/路径可以通过欧拉定理，记录奇点（度数为奇数的节点）的个数。如果有0个奇点，那么存在欧拉回路；如果有2个，则存在欧拉路径。其他情况无法不走重复路径遍历所有边。
+
+若存在欧拉回路，则从任意一个节点作为起点DFS遍历即可；若为欧拉路径，则需要从其中一个奇点开始DFS。
+
+听说有一个 Fleury 算法可以得到欧拉回路或欧拉路径，搜了一下没看到比较清楚的中文讲解和实现，贴伪代码的都不说桥怎么判别，甚至还看到有[错误代码](https://www.tutorialspoint.com/Fleury-s-Algorithm)（判断桥通过数节点的度数？？太离谱了大家还是不要看），自己课本不在手边也查不了，所以在这里总结一下并附一份代码。
+
+关于割点和桥，这篇[博文](https://www.cnblogs.com/nullzx/p/7968110.html)讲的好。
+

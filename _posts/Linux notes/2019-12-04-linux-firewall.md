@@ -4,11 +4,17 @@ title: "linux command * -- firewall"
 subtitle: 
 author: "Dongbo"
 header-style: text
+hidden: true
 tags:
   - linux
   - cmd
   - note
 ---
+
+### ubuntu
+
+
+### centOS
 
 firewalld
 
