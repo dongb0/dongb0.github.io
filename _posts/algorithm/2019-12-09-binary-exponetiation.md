@@ -22,10 +22,11 @@ tags:
 
 借用一下 OI Wiki 的例子，当我们使用快速幂计算$\ 3^{13} \ mod \ 11 \ $时，因为
 
+<div>
 $$ 
 { 3^{13} = 3^{(1101)_2} = 3^{8 \cdot 1} \cdot 3^{4 \cdot 1} \cdot 3^{2 \cdot 0} \cdot 3^1 }
 $$
-
+</div>
 
 设$m$为所求余数，$x$为所求的幂次方，$t_i$为对应中间项的值
 - 计算第$0$项$3^1,  x_0 = 3 , m_0 = 3 \% 11 = 3 , t_0 = 3 $
@@ -35,13 +36,16 @@ $$
 
 最后的$m_3 = 3$就是$\ 3^{13} \ mod \ 11 \ $的结果，其实$x$的值并没有用上，只是一并写出来帮助理解快速幂。我是大概做完这样的推导之后发现，我的问题其实变成：为什么
 
-$$ (A\cdot B) \% C = ((A \% C) \cdot (B \% C)) \% C $$
+<div>
+$$ (A\cdot B) \% C = ((A \% C) \cdot (B \% C)) \% C s$$
+</div>
 
 那这个就好证明了（虽然不知道对不对）
 
+<div>
 $$
-设A\div C = t_1\cdots m_1, B\div C = t_2\cdots m_2 \\
-a = t_1 \cdot C, \ b = t_2 \cdot C  \\
+设A = C\cdot t_1 + m_1, B = C\cdot t_2 + m_2  \\
+设a = t_1 \cdot C, \ b = t_2 \cdot C  \\
 \therefore A=a+m_1,\ B=b+m_2 \\
 \therefore 左边= (a\cdot b + a\cdot m_2 + b\cdot m_1 + m_1\cdot m_2)\%C  \\ 
 \because (a\cdot b)\%C = (a\cdot m_2)\%C = (b\cdot m_1)\%C = 0(用分配律还需要证明吗？)\\
@@ -49,6 +53,7 @@ a = t_1 \cdot C, \ b = t_2 \cdot C  \\
 又\because右边((A \% C) \cdot (B \% C)) \% C = (m_1\cdot m_2)\% C \\
 \therefore 左边=右边\\证毕
 $$
+</div>
 
 
 但是我只能在知道结论之后推导验证一下，没办法自己想到这个办法。唉

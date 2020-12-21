@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Ubuntu -- Vmware tools intallation"
+title: "Vmware -- Vmware tools intallation"
 subtitle: 
 author: "Dongbo"
 header-style: text
