@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "吐槽一下这个框架文章目录导航栏的实现和愚蠢的我"
-subtitle: 
+title: "对本博客框架目录导航栏的修改"
+subtitle: "吐槽一下这个框架文章目录导航栏的实现和愚蠢的我"
 author: "Dongbo"
 header-style: text
 tags:
@@ -9,7 +9,7 @@ tags:
 ---
 
 
-今天发现，[这个](https://github.com/Huxpro/huxpro.github.io)博客框架，也就是你现在看的这个，会把 h1..h6 的标题都生成目录导航栏，而我希望只生成 h1..h4 的目录。很简单的需求，只要我看懂作者怎么实现的就能改了。
+今天发现，[这个](https://github.com/Huxpro/huxpro.github.io)博客框架，也就是你现在看的这个，会把 \[h1..h6\] 的标题都生成目录导航栏，而我希望只生成 \[h1..h4\] 的目录。很简单的需求，只要我看懂作者怎么实现的就能改了。
 
 检查了一下网页里目录对应的 div 标签都带着`.*catalog.*`属性，然后到项目里`js/`文件夹里查。只在`/js/hux-blog.js`里找到这一个函数与`catalog`有关。虽然我不太熟JS但是也看得出来这是在浏览文章时 highlight 对应章节标题的。~~（因为有注释）~~
 
