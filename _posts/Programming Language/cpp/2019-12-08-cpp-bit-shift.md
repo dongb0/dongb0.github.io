@@ -1,12 +1,11 @@
 ---
 layout: post
-title: "[SSH] Basic"
+title: "C++/Java 移位运算对比"
 subtitle: 
 author: "Dongbo"
 header-style: text
 tags:
-  - network
+  - c++
+  - java
   - note
 ---
-
-> 什么是SSH

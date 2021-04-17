@@ -1,12 +1,13 @@
 ---
 layout: post
-title: "[SSH] Basic"
+title: "[Java]反射机制学习笔记"
 subtitle: 
 author: "Dongbo"
 header-style: text
 tags:
-  - network
+  - Java
   - note
 ---
 
-> 什么是SSH
+
+什么情况下需要用反射？

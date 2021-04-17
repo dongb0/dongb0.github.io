@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linux Command (5) -- route"
+title: "Linux Command (6) -- route"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -9,3 +9,5 @@ tags:
   - linux
   - cmd
 ---
+
+> route 命令
