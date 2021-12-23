@@ -1,11 +1,14 @@
 ---
 layout: post
-title: "C++/Java 移位运算对比"
+title: "[p2p]libp2p架构"
 subtitle: 
 author: "Dongbo"
 header-style: text
+mathjax: true
+hidden: false
 tags:
-  - c++
-  - java
-  - note
+  - p2p
 ---
+
+
+
