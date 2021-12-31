@@ -1,11 +1,12 @@
 ---
 layout: post
-title: "[Java] Comparable学习笔记"
+title: "[]"
 subtitle: 
 author: "Dongbo"
 header-style: text
 mathjax: true
-hidden: true
+hidden: false
 tags:
-  - Java
+  - algorithm
 ---
+
