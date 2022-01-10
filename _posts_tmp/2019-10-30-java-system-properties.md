@@ -4,6 +4,7 @@ title: "[Java]Property/System property"
 subtitle: 
 author: "Dongbo"
 header-style: text
+hidden: true
 tags:
   - Java
   - note

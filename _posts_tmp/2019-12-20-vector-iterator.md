@@ -4,6 +4,7 @@ title: "[c++/STL] vector - traits"
 subtitle: 
 author: "Dongbo"
 header-style: text
+hidden: true
 tags:
   - c++
   - source code
