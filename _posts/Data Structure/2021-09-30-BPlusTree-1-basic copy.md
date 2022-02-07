@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[B+ Tree] 1 - B+树是什么、能用来做什么"
+title: "[B+ Tree] 1 - B+树应用场景"
 subtitle: 
 author: "Dongbo"
 header-style: text
