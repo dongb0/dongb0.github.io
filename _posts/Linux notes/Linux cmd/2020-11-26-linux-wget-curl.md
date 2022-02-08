@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linux Command (2) -- wget and curl"
+title: "Linux Command (3) -- wget and curl"
 subtitle: 
 author: "Dongbo"
 header-style: text

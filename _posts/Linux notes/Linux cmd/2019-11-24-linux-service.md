@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linux command (3) -- service & systemctl"
+title: "Linux command (2) -- service and systemctl"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -120,7 +120,7 @@ tags:
 
   总的来说使用 `systemctl` 的话，命令的用法只是变为 `systemctl {start|stop|restart|status} service-name` 而已，如果只想了解用法的区别的话，到这就差不多了。不过偶尔我们会看到 `systemctl status ufw.service` 这个 `.service` 又是怎么回事呢？这就要再介绍一下 systemctl 了。
 
-  systemd 里引入了 Unit 和 Unit file的概念[^1]  [^2]。 Unit 可以看作 sytemd 可以操控的所有资源，比如硬件、socket、进程，甚至包括挂载点（mount point)、交换区、计时器等，而 Unit file 就是他们的启动或者管理文件。unit file按优先级从高到低存放在 `/etc/systemd/system` `/run/systemd/system` `/lib/systemd/system` 路径下，默认的 Unit 安装路径是在 /lib 下。Unit的类型可以根据 Unit File 的后缀判断，比如 ufw 的 Unit File 是 `ufw.service`，表明这是一个 service；其他的还有 `.socket` `.mount` `.device` 等，更详细的可以看下这个[博客](https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-Unit-files)。所以有些时候我们看到的带后缀的 systemctl 命令，就是在直接使用用 Unit File 的全名；如果没带后缀，则会在上述目录下逐个搜索是否存在对应的 Unit File。
+  systemd 里引入了 Unit 和 Unit file的概念[^1]  [^2]。 Unit 可以看作 sytemd 可以操控的所有资源，比如硬件、socket、进程，甚至包括挂载点（mount point)、交换区、计时器等，而 Unit file 就是他们的启动或者管理文件。unit file按优先级从高到低存放在 `/etc/systemd/system`、`/run/systemd/system`、`/lib/systemd/system` 路径下，默认的 Unit 安装路径是在 /lib 下。Unit的类型可以根据 Unit File 的后缀判断，比如 ufw 的 Unit File 是 `ufw.service`，表明这是一个 service；其他的还有 `.socket` `.mount` `.device` 等，更详细的可以看下这个[博客](https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-Unit-files)。所以有些时候我们看到的带后缀的 systemctl 命令，就是在直接使用用 Unit File 的全名；如果没带后缀，则会在上述目录下逐个搜索是否存在对应的 Unit File。
 
 
         [Unit]
