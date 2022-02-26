@@ -61,16 +61,48 @@ tags:
 
   - 出错原因
   
-    使用`for _,v := range entries { getData = &v}` 的方式来取entry的指针，但是golang关于range的使用方式说得很清楚：
+    使用以下代码片段方式来取entry的指针：
+        entries := []Entry{}
+        entPointers := []*Entry{}
+        for _,v := range entries { 
+          entPointers = append(entPointers, &v)
+        }
+    
+    但是golang关于range的使用方式说得很清楚：
   
     > When ranging over a slice, two values are returned for each iteration. The first is the index, and the second is a copy of the element at that index.
 
-    这里的`v`只是一个临时变量，range在遍历过程中会不断给这个变量赋值来，我这样取到的地址其实并不是entry真正的地址；而当遍历结束时临时变量`v`的值变成了数组的最后一个元素，所以我拷贝出来的entry全都是它。
+    这里的`v`只是一个临时变量，range在遍历过程中会不断给这个变量赋值来，我这样取到的地址其实并不是entry真正的地址，只是这个临时变量的地址；而当遍历结束时临时变量`v`的值变成了数组的最后一个元素，所以指针切片里输出的元素全都是它。
 
   - 解决方法
     
-    采用下标引用的方式取指针即可，`for i := range entries { getData = &entries[i]} `
+    采用下标引用的方式取指针即可，`for i := range entries { entPointers = append(entPointers, &v) }`
     
+
+###### 4（proj2c）TestOneSnapshot2C小概率出现panic: can't get value 76313030 for key 6b313030
+
+  - 出错原因
+  
+    我修改过测试用例，TestOneSnapshot2C现在的测试逻辑是3个节点在partition时会固定将leader隔离，剩下两个节点重新选举。出现上述panic原因是cluster向leader发送请求时，非常非常恰巧**所有**请求都先发给了旧leader超时之后才重新向新leader请求，导致旧leader的日志长度跟新leader一致(但是日志的term不同）。分区恢复之后，我的实现是先通过heartbeat更新Prs，但是处理heartbeat的逻辑里忘记检查日志的term，导致旧leader此时会告诉新leader它已经持有相同长度的日志了，最后没正确获取最新日志从而在后续查询出现问题。
+
+    在原本的逻辑里出现该错误概率非常小，目前跑了150次以上该测试只出现了这一次；但是比较好复现，只要集群向所有能检测到的leader都发送请求就会出现。
+    
+    解决方案：leader处理heartbeat response时，判断是否日志是否最新时，不单要看日志长度，还需要看对应日志的term是否相同。只有日志长度和term都相同，才能表明是相同的日志。这本应该是需要时刻牢记的点，在handleAppen时也做了，却在处理heartbeat时忘记了。
+
+###### 5（proj2c）节点重启后读取持久化的日志时，某节点的日志会部分丢失
+
+  - 出错原因
+
+    似乎有好几处bug造成了这个错误。
+
+    1. PeerMsgHandler会向raft发送AdminCmdType_CompactLog请求，等待raft将这个消息写入日志并提交之后，对PeerStoage中的日志进行截断压缩。问题出在我没有考虑一个Ready中包含Snapshot和AdminCmdType_CompactLog的时候，他们都需要对applyState进行修改，导致其中一个的修改被吞掉了。出错的地方往往是Snapshot已经删除了日志，但是CompactLog请求又把applyState.TruncatedIndex覆盖了Snapshot的修改，将其改为一个更小的值。比如原本日志为\[100, 200\],CompactLog请求要截断为\[150, 200\]，Snapshot应用时实际更新日志为\[160,220\]。我先应用snapshot然后再处理CompactLog请求，导致Peer读TruncatedIndex时认为150～160这部分日志还在，导致该错误。  
+    解决方法：TruncatedIndex更新时取最大值；或者以Snapshot的更新为准，由Snapshot覆盖CompactLog对TruncatedIndex的修改的修改。
+
+    2. Raft层发送Snapshot请求和handleAppend实现上的逻辑不统一。我实现Snapshot时如果暂时没有生成Snapshot，则会发送一个Entries为空的Append请求，本意是想借此更新Prs；但是follower实现的handleAppend处理Entries==nil时，因为该AppendMsg包含的Index和LogTerm与follower的日志一致，接受AppendMsg的同时也把follower的CommitIndex更新为AppendMsg.Index了。但是可能存在leader的AppendMsg.Index超过leaderCommitted的情况的，此时上述逻辑中的follower committed就超过leader，这显然不对的。  
+    解决方法：接受AppendMsg时，论文中提到follower更新committed的逻辑为If leaderCommit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry)；同时还需要正确处理AppendMsg中Entries为空的情况，此时只能将Committed更新为`min(AppendMsg.Index，AppendMsg.Committed)`
+
+    3. 依然是Raft层实现Snapshot的问题。PeerStorage中apply Snapshot时，会删除当前所有的日志，但是handleSnapshot时一并追加的日志还是根据删除之前的来追加的，导致最后生成的Ready中包含的日志不完整。如Snapshot.Index=105, entries:\[{Index:106}, {Index:107}, {Index:108}...]，节点原本的日志为\[...{Index:106},{Index:107}]，我的错误实现里接受该snapshot之后生成的ready，只包含一个Snapshot和Index:108之后的日志，最终导致上述错误。  
+    解决方法：接受snapshot时也接受消息中包含的全部日志。
 
 [1]: https://pingcap.com/zh/blog/linearizability-and-raft
 [2]: https://keys961.github.io/2020/11/06/etcd-raft-7/
