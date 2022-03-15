@@ -5,10 +5,12 @@ subtitle:
 author: "Dongbo"
 header-style: text
 mathjax: true
+catalog: true
 hidden: false
 tags:
   - algorithm
   - c++
+  - programming
 ---
 
 这次我们来讲讲 C++/STL 里的排序算法。最后混进来的 `nth_element` 是选择算法，以$O(n)$的平均时间复杂度返回第 n 小的元素（若有重复元素则是排序后 n-th 位置上的元素），但采用的是快排思想，故一并介绍。
@@ -79,7 +81,7 @@ __lg(int __n)
 
 ### stable_sort
 
-书上没有介绍`stable_sort`，但是我们知道几种$O(N×logN)$的排序算法只有归并排序是稳定的，能够保持序列元素原本的相对顺序。
+书上没有介绍`stable_sort`，但是我们知道几种$O(nlog(n))$的排序算法只有归并排序是稳定的，能够保持序列元素原本的相对顺序。
 
 原理就不用再介绍了，来直接看源码。`__stable_sort`下具体完成排序工作的是以下两个函数:
 
@@ -151,26 +153,31 @@ std::__stable_sort_adaptive(__first, __last, __buf.begin(),
 			    __comp);
     }
 ```
-跟着找下来发现是预先开辟好临时空间来完成合并，且并不是像手工实现的归并排序那样一直分割到每个区间只剩1个元素，而是先把整个序列分割为若干长度为7的区间，对每个区间使用插入排序，然后再把各个排好序的小区间两两合并起来。
+跟着找下来发现是预先开辟好临时空间来完成合并，但不像手工实现的归并排序那样一直分割到每个区间只剩1个元素，而是先把整个序列分割为若干长度为7的区间，对每个区间使用插入排序，然后再把各个排好序的小区间两两合并起来。
 
-总结来说，`sort`和`stable_sort`中对插入排序的使用比想像中的要多，虽然是$O(n^2)$复杂度的排序算法，但是在小数据量上的使用反而会因为它的简单而比其他$O(n×log(n))$算法更有效。
+总结来说，`sort`和`stable_sort`中对插入排序的使用比想像中的要多，虽然是$O(n^2)$复杂度的排序算法，但是在区间较短时反而会因为它的简单（无递归、无需额外空间，且STL对插入排序的内循环判断条件进行了优化）而比其他$O(n×log(n))$算法更有效。
 
 ### partial_sort
 
-堆排序
+该函数实现的是堆排序，接收三个迭代器 first, middle, last，保证 midle - first 个最小的元素在区间 \[first, middle) 内，其余元素放在 \[middle, last) 内，且不保证顺序。
+
+首先对区间 \[first, middle) 建最大堆，然后继续遍历 \[middle, last)，若碰到比堆顶大的元素，则交换两个元素位置，并将新元素下移到队中合适的位置。如此遍历完整个区间后，对 \[first, middle) 的最大堆不断进行pop操作得到一个升序数组，即完成整个排序过程。
 
 ### nth_element
 
-quick select
+该函数实现了 quick select 算法[^1]，平均$O(n)$时间复杂度求数组中第 K 大（或第 K 小）的元素（经典的面试题）。实现思路类似快排，但是每次分为左右两段子区间之后，只对第 nth 元素所在子区间继续递归处理，直到第 nth 位置上的值确定为止（严格来说每次 partition 之后，pivot 所在位置的元素值就确定了，我们不断缩小分区，直到这一区间缩小到 nth 位置）。
 
+符合本人认知的时间复杂度计算：
+<div>
+$$
+第1次分割区间长度为n，第2次区间长度为 \frac{n}{2},...,第i次分割区间长度为 \frac{n}{2^i} \\
+\therefore \Theta = n+\frac{n}{2}+\frac{n}{2^2}+...+\frac{n}{2^k} = n\frac{1-\frac{1}{2^{k+1}}}{1-\frac{1}{2}}  \\
+\because k = log(n) \therefore \Theta = 2n(1+\frac{1}{2n}) = 2n + 1 = O(n)
+$$
+</div>
+如果 pivot 选择得不好，最坏情况下还是会跟快排一样退化成为 $n(n^2)$(比如每次都选到极值，这样几乎每次 parition 之后区间长度都只能减小1。快排中选取 pivot 的优化策略也可用于此，这里略去不讲。
 
-
-
-
-
-
-
-
+示例代码来自[leetcode-215](https://leetcode.com/problems/kth-largest-element-in-an-array/)
 ```
 // cpp
 class Solution {
@@ -246,4 +253,14 @@ func partition(nums []int, left, right int) int {
     return index
 }
 ```
-顺带，如果说明数据无法一次全部装入内存，但可以装入k个，那么使用一个 k + 1 大小的优先队列遍历数据即可。
+顺带，如果说明数据无法一次全部装入内存，但可以装入k数量级的数据，那么使用一个 k + 1 大小的优先队列遍历数据即可。
+
+
+关于 c++/STL 的这几个函数的介绍就到这。
+
+The End
+
+-----------
+
+
+[^1]: [维基百科-快速选择](https://zh.wikipedia.org/zh-hans/%E5%BF%AB%E9%80%9F%E9%80%89%E6%8B%A9)
