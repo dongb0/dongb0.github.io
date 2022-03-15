@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[图] 1 - 最小生成树"
+title: "[图论] 1 - 最小生成树"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -8,6 +8,7 @@ mathjax: true
 hidden: false
 tags:
   - algorithm
+  - graph
 ---
 
 > 简单记录Prim和Kruskal最小生成树算法的实现思路，证明暂略
