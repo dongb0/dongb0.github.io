@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[database] MVCC"
+title: "[db] 2 - MVCC"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -14,11 +14,16 @@ tags:
 
 multi-version concurrency control
 
-### 优点
+#### 优点
 
 
-### 缺点
+#### 缺点
 
+
+### InnoDB中的MVCC
+
+
+### 其他存储引擎，比如？
 
 
 猜测：
