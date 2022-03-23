@@ -101,7 +101,7 @@ tags:
 
 ### 延伸2：如何避免 partial write 问题
 
-[博客3][3]提到日志的 block 一般为 512KB，可以认为日志本身不会出现 partial write。InnoDB的 double write 机制则可以很好的解决数据页面的 partial write，大体流程如下：
+[博客3][3]提到日志的 block 一般为 512 Byte，可以认为日志本身不会出现 partial write。InnoDB的 double write 机制则可以很好的解决数据页面的 partial write，大体流程如下：
 
 内存中分配有 2MB 的 double write 缓冲区，对应128个 16KB 的 page；磁盘上也分配有连续的 2MB double write 共享表空间。每次刷盘时先把脏页存到内存中的缓冲区，缓冲满时先顺序写入 double write 的共享表空间中（我猜可能是满1MB时），这部分的写入完成后再正式将页面写到实际的存储页面。这样当数据页发生 partial write 时，总能从 double write 的共享表空间找到完整的页面数据。
 
