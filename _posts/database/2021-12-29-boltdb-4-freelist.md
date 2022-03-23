@@ -102,7 +102,7 @@ func (f *freelist) hashmapAllocate(txid txid, n int) pgid {
 
 回收页面的过程分为 pending 和 release 两步，首先在事务执行过程中产生的空闲页面，调用 freeList.free 放入 pending list 中，表示页面将被释放，但此时分配新页面还不会使用这些 pending page；接下来调用 release 函数才是把 pending page 真正标为空闲页面。BoltDB 有些独特的是，会每次写事务开始时调用一次 release 来回收上次事务产生的 pending pages，将它们与之前的空闲页面合并（如果可能的话）。
 
-// TODO：为了什么？为什么不是每次事务结束时回收？
+// TODO：为了什么？为什么不是每次事务结束时回收？ 
 
 一个页面会在以下几种情况出现时被回收：
 
@@ -189,8 +189,6 @@ func (f *freelist) write(p *page) error {
 }
 ```
 freeList 是 BoltDB 用于回收并重复使用空闲页面的辅助组件，也许是 shadow paging 机制才需要使用。但是我有些好奇为什么 BoltDB 不增加 Compact 功能用于整理文件中的空闲页面，在数据库空闲时把数据页都移动到文件前面，减小文件大小。也许对一个简单的数据库引擎来说这样的需求过于复杂了。
-
-那么下次看哪个带有 Compact 机制的数据库呢。
 
 The End
 

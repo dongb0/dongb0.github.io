@@ -15,7 +15,8 @@ tags:
 上次我们在 [BoltDB Transaction][1] 中简略介绍了 BoltDB B+树索引的实现，但是有些细节没有具体介绍。本文就来结合代码详细归纳一下 BoltDB 如何用短短 400 多行代码实现 B+ 树的（加上Cursor.go约700行）。
 
 首先我们看 B+ 树节点的定义，根据我的理解给每个字段加上了注释。
-// TODO: code block one tab use 8 space in final blog page, prefer 4
+
+// TODO: code block one tab use 8 space in blog page now, prefer 4
 
 ```
 // node represents an in-memory, deserialized page.
@@ -142,7 +143,6 @@ func (c *Cursor) searchNode(key []byte, n *node) {
 
 // TODO： 看了 freeList 之后，修改 txn 里 事务的图，加上 freeList 
 
-
 ### 插入
 
 创建 Bucket 时先创建一个空的 root node（isLeaf:true），这样插入第一个 k/v 和后续的插入操作逻辑上都统一了：只管移动 Cursor 到叶节点，然后往里插数据就是。另外要记得在插入过程中 node 不会像教材描述的 B+ 树一样增长到最大长度后就进行分裂，而是一口气全放在叶节点中；BoltDB 会在事务提交时才统一将超出阈值的 node 分裂成若干个，更新 parent_node.inode 中的指针（page id）指向新 node，如果 parent 也需要分裂则继续重复这一过程。
@@ -151,8 +151,7 @@ func (c *Cursor) searchNode(key []byte, n *node) {
 
 阈值根据 Bucket.FillPercent 计算得到，设为 `pageSize * fillPercent`，默认 pageSize=4096, FillPercent=0.5，所以分裂之后每个 node 大约为 2KB，但是因为 k/v 长度不是定长，所以每个页面中包含的 k/v 数量不一定相等。
 
-// TODO：示意图
-
+// TODO：示意图？ 直接搬运前一篇？
 
 // TODO：另外对于特别大的 k/v（比如 key + value > 2KB），每个 page 中数据如何存放？ overflow？
 

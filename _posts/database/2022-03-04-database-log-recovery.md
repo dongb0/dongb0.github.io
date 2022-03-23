@@ -64,7 +64,7 @@ tags:
 
 // TODO： fuzzy checkpoint
 
-// TODO： 分布式事务
+// TODO： 分布式事务 
 
 #### WAL
 
@@ -83,18 +83,18 @@ tags:
 我不确定 InnoDB 使用的是逻辑日志还是物理逻辑日志，但反正肯定不是物理日志，因此需要采用一些别的措施来解决这一问题，也就是下一节要介绍的 double write。
 
 ##### 附加：数据库和文件系统的读写单元
-我们知道一个 Database block 大于操作系统的读写单元时，数据库 block 写入磁盘不能保证原子性，有可能导致 partial write 问题。[博客3][3]中对比了 DB block \ OS block \ IO Block \ sector 的概念，本人因无法区分 page、frame、block 而深感苦恼，故重写。
+我们知道一个 Database block 大于操作系统的读写单元时，数据库 block 写入磁盘不能保证原子性，有可能导致 partial write 问题。[博客3][3]中对比了 DB block \ OS block \ IO Block \ sector 的概念，本人因无法区分 page、frame、file block 而深感苦恼，故计划重写。
 - sector  
   是机械硬盘中最小的读写单位，通常为 512 byte，SSD中为了兼容也有一个概念上的扇区(logical sector)，不过目前新标准的硬盘扇区大小为4KB
   // TODO: Advanced format
   // TODO：对于机械硬盘的历史发展需要补充了解，PS：加上SSD
   // TODO：开新坑介绍HDD和SSD
 - Block[^3]  
-  是操作系统进行文件IO的最小单位，一般NTFS的block size为 4KB，所以默认配置下1个 block 会包含 8 个 sector。
-  // TODO：所以一个目录大小是4K？
+  // 是操作系统进行文件IO的最小单位，一般NTFS的block size为 4KB，所以默认配置下1个 block 会包含 8 个 sector。
+  // TODO：所以一个目录大小是4K？ 一般文件系统的页面大小
   // TODO：NTFS和EXT4等文件系统格式？
 - Page[^3]  
-  是CPU从内存中读取数据的逻辑单元（// TODO：needs update），一般由一个或多个 Block 构成。
+  // 是CPU从内存中读取数据的逻辑单元（// TODO：needs update），一般由一个或多个 Block 构成。应当就是操作系统的内存页大小，CPU每次处理一个页面，写入磁盘也是以页面为单位
   // TODO： frame
 - DB Page
   数据库读写数据的基本单位，InnoDB默认为16KB。
