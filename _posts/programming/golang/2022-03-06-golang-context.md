@@ -8,6 +8,8 @@ mathjax: true
 hidden: false
 tags:
   - golang
+  - programming
+  - source code
 ---
 
 > 用golang有一段时间了，但是一直以来都是要用什么就查什么，时间一长啥也记不住。所以计划一点点归纳接触到的各种golang机制和标准库的用法，加深印象，也方便查阅。

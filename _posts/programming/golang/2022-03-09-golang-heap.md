@@ -9,6 +9,7 @@ hidden: false
 tags:
   - golang
   - std
+  - programming
 ---
 
 golang里要使用优先队列略微麻烦，需要自己实现 `heap.Interface` 下的几个接口，比起 c++ 的容器使用起来更麻烦一些。
