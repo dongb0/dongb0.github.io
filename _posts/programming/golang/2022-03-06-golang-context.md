@@ -76,9 +76,8 @@ type cancelCtx struct {
 
 代码片段中的`propagateCancel`函数会把当前创建的 context 加入 parent 的 children列表中；innermost 的 cancelCtx 还会启动一个 goroutine 检测 parent 是否结束运行，当发现 `parent.Done()` 之后，也将调用child的`cancel`函数中止 child context。
 
-cancelCtx 不会自动进行 cancel 一般来说是需要手动调用 cancel 来进行取消的。
+cancelCtx 不会自动进行 cancel，需要我们手动调用 cancel 来进行取消。一般来说可以用 `defer` 保证退出运行时执行 cancel 函数。
 
-// TODO：context 中 mutex 的必要性？
 
 ### WithDeadline
 
