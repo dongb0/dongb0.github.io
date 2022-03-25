@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[golang/std] 2 - container/heap"
+title: "[golang] 3 - container/heap"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -33,9 +33,9 @@ func (q *priorityQueue) Pop() interface{} {
 	return x
 }
 
-func (q *priorityQueue) Less(i, j int) bool {
+func (q *priorityQueue) Less(i, j int) bool { // 定义比较函数
 	pq := *q
-	return pq[i].score > pq[j].score
+	return pq[i].score > pq[j].score 
 }
 
 func (q *priorityQueue) Swap(i, j int) {

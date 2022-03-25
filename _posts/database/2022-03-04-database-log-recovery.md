@@ -62,8 +62,7 @@ tags:
 
 如果恢复过程再次发生崩溃，撤销过程可能把一些本来属于未完成的事务变为了abort事务，也就是需要重做的事务增加了，而需要回滚的事务减少了。
 
-// TODO： fuzzy checkpoint
-
+// TODO： fuzzy checkpoint // TODO： steal no-force
 // TODO： 分布式事务 
 
 #### WAL
@@ -103,7 +102,7 @@ tags:
 
 [博客3][3]提到日志的 block 一般为 512 Byte，可以认为日志本身不会出现 partial write。InnoDB的 double write 机制则可以很好的解决数据页面的 partial write，大体流程如下：
 
-内存中分配有 2MB 的 double write 缓冲区，对应128个 16KB 的 page；磁盘上也分配有连续的 2MB double write 共享表空间。每次刷盘时先把脏页存到内存中的缓冲区，缓冲满时先顺序写入 double write 的共享表空间中（我猜可能是满1MB时），这部分的写入完成后再正式将页面写到实际的存储页面。这样当数据页发生 partial write 时，总能从 double write 的共享表空间找到完整的页面数据。
+内存中分配有 2MB 的 double write 缓冲区，如果db page采用 16 KB 大小可以容纳16个；磁盘上也分配有连续的 2MB double write 共享表空间。每次刷盘时先把脏页存到内存中的缓冲区，缓冲满时先顺序写入 double write 的共享表空间中（我猜可能是满1MB时先写，然后内存拷贝页面到另一段1MB空间），写入共享表的工作完成后再将数据页写到实际的存储位置。这样当数据页发生 partial write 时，总能从 double write 的共享表空间找到完整的页面数据。
 
 但是还有一个问题，写备份的时候会不会出现 partial write 呢？应该也是有可能出现的，但是此时数据库页面还没有进行修改，对于出现部分写的 double write 页我们可以直接丢掉。
 

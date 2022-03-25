@@ -5,9 +5,8 @@ subtitle:
 author: "Dongbo"
 header-style: text
 mathjax: true
-hidden: false
+hidden: true
 tags:
-  - algorithm
   - programming
   - c++
 ---
@@ -16,7 +15,7 @@ tags:
 
 ### C++自定义键值类型
 
-其实是先搜到了[这个博客](1)，感觉已经介绍得足够好了。总结来说其实也是需要hash函数和equals函数的，但是我的自定义类型一般用默认的比较函数就够了，所以只要重载一下hash函数。
+其实是先搜到了[这个博客][1]，感觉已经介绍得足够好了。总结来说其实也是需要hash函数和equals函数的，但是我的自定义类型一般用默认的比较函数就够了，所以只要重载一下hash函数。
 
 // 函数对象
 
