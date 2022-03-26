@@ -8,6 +8,7 @@ mathjax: true
 hidden: false
 tags:
   - raft
+  - golang
 ---
 
 > 记录实现tinykv遇到的各类bug和解决方案
