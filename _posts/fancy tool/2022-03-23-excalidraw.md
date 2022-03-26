@@ -7,7 +7,7 @@ header-style: text
 mathjax: true
 hidden: false
 tags:
-  - algorithm
+  - tool
 ---
 
 今天就是想安利一个手绘风格的图表绘制网站。
