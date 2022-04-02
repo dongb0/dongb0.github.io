@@ -5,7 +5,7 @@ subtitle:
 author: "Dongbo"
 header-style: text
 tags:
-  - limux
+  - linux
   - note
 ---
 
