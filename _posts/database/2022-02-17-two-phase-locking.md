@@ -5,7 +5,7 @@ subtitle:
 author: "Dongbo"
 header-style: text
 mathjax: true
-hidden: true
+hidden: false
 catalog: true
 tags:
   - database
@@ -22,7 +22,7 @@ tags:
 
 非常简洁且容易记忆，以上两条规则就能保证事务串行化。但是现实又没那么简单，basic 2PL 有可能导致级联回滚（cascading aborts)，如事务T1修改数据A之后进入收缩阶段，随后数据A被另一个事务T2读取，但事务T1意外终止了，因此数据A的修改被撤回，这导致T2也需要回滚，此时我们说 T1 的 abort 可能导致多个事务都需要回滚。可以加强2PL释放锁的条件避免这一情况的出现，我们可以使用 strict 2PL 协议，该协议与 basic 2PL 一样都有增长和收缩阶段，但是限制互斥锁的释放必须推迟到提交事务之后。容易发现使用 strict 2PL 其他事务就无法读到未提交数据的中间状态，能避免级联回滚，但是该协议更悲观，并发程度更低。
 
-// TODO：现实中我们是否在使用 strong 2PL？ Bustub 实现的是 Strong 2PL，教材仅提到在商用数据库系统中广泛使用
+// TODO：现实中我们是否在使用 Strict 2PL（S2PL） 或 Strong Strict 2PL（SS2PL）？ Bustub 实现的是 S2PL，教材提到在商用数据库系统中使用广泛
 
 ### 死锁处理
 
@@ -121,7 +121,7 @@ update：我在想如果构造这样一个测试用例：首先生成若干读�
 
 ##### 不同隔离等级的实现方式
 
-最后要记录的是 Bustub 事务共需实现3种隔离等级：Repeatable_Read, Read_Committed, Read_Uncommitted。因为课本上对于隔离等级的实现只是介绍了几种并发控制手段，没有具体介绍如何使用某种并发控制来实现不同的隔离等级，所以对于这块概念一直都很迷糊。感谢 Andy 让我终于在 coding 中明白了 2PL 实现的细节。以下是使用2PL时各个隔离等级的实现方式：
+最后要记录的是 Bustub 事务共需实现3种隔离等级：Repeatable_Read, Read_Committed, Read_Uncommitted。因为课本上对于隔离等级的实现只是介绍了几种并发控制手段，没有具体介绍如何使用某种并发控制来实现不同的隔离等级，所以对于这块概念一直都很迷糊。感谢 Andy 让我终于在 coding 中明白了 2PL 实现的细节，主要区别体现在共享锁的释放时机上。以下是使用2PL时各个隔离等级的实现方式：
 
 **Serializable**：strict 2Pl，加上索引锁；事务开始时要给所有数据项加锁
 
@@ -134,9 +134,13 @@ update：我在想如果构造这样一个测试用例：首先生成若干读�
 > 我曾有个疑问：既然拿到共享锁之后立刻释放了，那我们有申请它的必要吗？后来发现可以用下图左一的例子来解答：申请共享锁是为了保证当前没有其他事务在修改该数据项（持有互斥锁），立刻释放是为了让其他事务能够更早拿到互斥锁（提高并发度）
 
 ![read_committed and read_uncommitted](/img/in-post/post-golang-gc/rcVSru.png)
-
+00000
 **Read_Uncommitted**：S2PL，但是不需要共享锁。如图，没有共享锁的话就有机会读到事务提交前的中间状态。
 
+
+### 总结
+
+// TODO
 
 The End
 
