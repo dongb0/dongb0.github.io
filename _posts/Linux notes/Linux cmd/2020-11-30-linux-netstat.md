@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "Linux Command (3) -- netstsat"
+title: "Linux Command (4) -- netstsat"
 subtitle: 
 author: "Dongbo"
 header-style: text
-hidden: true
+hidden: false
 tags:
   - linux
   - cmd
