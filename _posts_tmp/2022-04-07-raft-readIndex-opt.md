@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[raft] 只读操作优化"
+title: "[Raft] 2 - 线性一致和读优化"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -11,5 +11,7 @@ tags:
 ---
 
 记录raft readIndex的实现
+
+leaseRead 以及代码实现
 
 参考pingcap以及其他博客
