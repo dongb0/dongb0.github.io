@@ -55,7 +55,7 @@ tags:
 
 恢复的撤销阶段我们从日志末尾往前扫描，来回滚事务。具体步骤如下：
 
-1. 遇到属于 undo-list 中事务的日志$<T_i, X_j, V_1, V_2>时，撤销该日志记录的操作，写入一条$<T_i, X_j, V_2>$的日志记录
+1. 遇到属于 undo-list 中事务的日志$<T_i, X_j, V_1, V_2>$时，撤销该日志记录的操作，写入一条$<T_i, X_j, V_2>$的日志记录
 2. 遇到属于 undo-list 中事务的$<T_i, start>$，就往日志中写入一个$<T_i, abort>$标识事务回滚完毕，并将事务从 undo-list 中删掉
 
 上述操作进行到 undo-list 为空时，我们就完成了所有事务的回滚。
@@ -63,7 +63,6 @@ tags:
 如果恢复过程再次发生崩溃，撤销过程可能把一些本来属于未完成的事务变为了abort事务，也就是需要重做的事务增加了，而需要回滚的事务减少了。
 
 // TODO： fuzzy checkpoint // TODO： steal no-force
-// TODO： 分布式事务 
 
 #### WAL
 
@@ -82,21 +81,37 @@ tags:
 我不确定 InnoDB 使用的是逻辑日志还是物理逻辑日志，但反正肯定不是物理日志，因此需要采用一些别的措施来解决这一问题，也就是下一节要介绍的 double write。
 
 ##### 附加：数据库和文件系统的读写单元
-我们知道一个 Database block 大于操作系统的读写单元时，数据库 block 写入磁盘不能保证原子性，有可能导致 partial write 问题。[博客3][3]中对比了 DB block \ OS block \ IO Block \ sector 的概念，本人因无法区分 page、frame、file block 而深感苦恼，故计划重写。
+
+我们知道一个 Database Page 大于操作系统的读写单元时，DB Page 写入磁盘不能保证原子性，有可能导致 partial write 问题，事实上哪怕将 DB Page 的大小设为与 IO Block 大小相等，也不能完全保证页面写入是原子的。因为传统磁盘扇区大小只有 512 Byte，虽然操作系统 IO Block 大小一般设为4KB，但实际的写入单位还是一个扇区。[博客3][3]中对比了 DB block \ OS block \ Block \ sector 的概念，本人因无法区分 page、frame、file block 而深感苦恼，故于此重新归纳。
+
 - sector  
-  是机械硬盘中最小的读写单位，通常为 512 byte，SSD中为了兼容也有一个概念上的扇区(logical sector)，不过目前新标准的硬盘扇区大小为4KB
+  扇区的概念来自于传统机械硬盘，通常为 512 Byte，是机械硬盘中最小的读写单位；SSD中为了兼容也有一个概念上的扇区(logical sector)，目前也出现了使用新标准4KB扇区的硬盘。
+
   // TODO: Advanced format
   // TODO：对于机械硬盘的历史发展需要补充了解，PS：加上SSD
   // TODO：开新坑介绍HDD和SSD
 - Block[^3]  
-  // 是操作系统进行文件IO的最小单位，一般NTFS的block size为 4KB，所以默认配置下1个 block 会包含 8 个 sector。
-  // TODO：所以一个目录大小是4K？ 一般文件系统的页面大小
-  // TODO：NTFS和EXT4等文件系统格式？
+  Block 就我理解而言是文件系统组织文件存储的单位，虽然磁盘提供的最小读写单位是扇区，但是如果以扇区为单位进行读写需要太多I/O次数，文件系统会将多个扇区组合起来批量进行读写，所以书上说[^4] Block 是文件设备读写的最小单位（但是实际读写磁盘时还是以扇区为单位操作的），可以用`stat [fileName/dirName]` 查看：
+  ```
+  # 查看根目录的信息
+  $ stat /
+    File: /
+    Size: 4096      	Blocks: 8          IO Block: 4096   directory
+  Device: 10305h/66309d	Inode: 2           Links: 19
+  Access: (0755/drwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
+  ...
+  ```
+  其中的 IO Block 字段就是每个块的大小，Size字段是以字节为单位的文件大小（因为一个目录项也是一个文件，所以这里的Size也是4096）。\[5]提到可以用 `blockdev --setbsz` 来改变块的大小，但是看man手册说这一选项只在 blockdev 打开设备期间生效，至于具体生效范围和能否设置比当前 Block size 小，还没有进行探索。 
+  
+  // TODO：去看！
+
+  我们格式化硬盘时可以设置 Allocation Unit size 参数（windows中的叫法），这一选项就是在设置文件系统的 block size， NTFS 默认的block size为 4KB。我们也可以使用更大的如8K、16K大小的 Block，但这样对小文件会产生较多空间上的浪费（每个文件至少要占用一个块）。
+  
 - Page[^3]  
-  // 是CPU从内存中读取数据的逻辑单元（// TODO：needs update），一般由一个或多个 Block 构成。应当就是操作系统的内存页大小，CPU每次处理一个页面，写入磁盘也是以页面为单位
-  // TODO： frame
+  Page 在我理解看来是CPU从内存中读取数据的单位，CPU从内存中读取一个或多个 Page 大小的数据来进行运算，Page 能使用多大的 Size 是需要硬件支持的（//TODO：是需要MMU，或者更具体一点需要TLB的支持吗），目前常用的 Page Size 是 4KB。os课上的 page 指虚拟内存页，frame 则是指物理内存页面。
+
 - DB Page
-  数据库读写数据的基本单位，InnoDB默认为16KB。
+  数据库读写数据的单位，InnoDB默认为16KB。
 
 ### 延伸2：如何避免 partial write 问题
 
@@ -117,10 +132,12 @@ tags:
 [^1]: [数据库据系统概念-第16章]()
 [^2]: [MySQL技术内幕-InnoDB存储引擎（第二版)2.6.2][1]
 [^3]: [Difference between Page and Block in Operating System][4]
+[^4]: [现代操作系统 - 第9章 文件系统]()
+[^5]: [计算机存储术语: 扇区，磁盘块，页](https://zhuanlan.zhihu.com/p/117375905)
 
 [1]: https://github.com/wususu/effective-resourses/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95(InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E)%E7%AC%AC2%E7%89%88.pdf
 [2]: https://www.percona.com/blog/2006/08/04/innodb-double-write/
-[3]: https://blog.51cto.com/mengphilip/1672113
+[3]: https://www.cnblogs.com/cchust/p/3961260.html
 [4]: https://www.javatpoint.com/page-vs-block-in-operating-system
 [5]: https://15445.courses.cs.cmu.edu/fall2020/slides/20-logging.pdf
 [6]: https://15445.courses.cs.cmu.edu/fall2020/schedule.html
