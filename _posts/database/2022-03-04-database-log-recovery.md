@@ -90,6 +90,7 @@ tags:
   // TODO: Advanced format
   // TODO：对于机械硬盘的历史发展需要补充了解，PS：加上SSD
   // TODO：开新坑介绍HDD和SSD
+
 - Block[^3]  
   Block 就我理解而言是文件系统组织文件存储的单位，虽然磁盘提供的最小读写单位是扇区，但是如果以扇区为单位进行读写需要太多I/O次数，文件系统会将多个扇区组合起来批量进行读写，所以书上说[^4] Block 是文件设备读写的最小单位（但是实际读写磁盘时还是以扇区为单位操作的），可以用`stat [fileName/dirName]` 查看：
   ```
@@ -108,7 +109,7 @@ tags:
   我们格式化硬盘时可以设置 Allocation Unit size 参数（windows中的叫法），这一选项就是在设置文件系统的 block size， NTFS 默认的block size为 4KB。我们也可以使用更大的如8K、16K大小的 Block，但这样对小文件会产生较多空间上的浪费（每个文件至少要占用一个块）。
   
 - Page[^3]  
-  Page 在我理解看来是CPU从内存中读取数据的单位，CPU从内存中读取一个或多个 Page 大小的数据来进行运算，Page 能使用多大的 Size 是需要硬件支持的（//TODO：是需要MMU，或者更具体一点需要TLB的支持吗），目前常用的 Page Size 是 4KB。os课上的 page 指虚拟内存页，frame 则是指物理内存页面。
+  Page 在我理解看来是CPU从内存中读取数据的单位，CPU从内存中读取一个或多个 Page 大小的数据来进行运算，Page 能使用多大的 Size 是需要硬件支持的（//TODO：是需要MMU，或者更具体一点需要TLB的支持吗），目前常用的 Page Size 是 4KB。os课上的 page 指虚拟内存页，frame 则是指物理内存页面。frame 的数量受限于物理内存的大小，比如对于64位机器来说，16GB内存能划分出$\frac{16GB}{4KB} = \frac{2^{34}}{2^{12}}=2^{28}=256M $ 个 frame，而虚拟地址空间是$2^{64}$，逻辑上可以有$\frac{2^{64}}{2^{12}}=2^{52}$个 page。不过实际上没有进程需要这么多内存，而且CPU支持的寻址空间似乎也不会完整支持64位地址，之前曾看到一般架构只支持48或52位地址，所以操作系统可能会将这些高位地址纳为己用，低位代码用于应用程序、用户堆栈和其他数据区，这或许可以帮助理解内核态[^6]。
 
 - DB Page
   数据库读写数据的单位，InnoDB默认为16KB。
@@ -121,7 +122,7 @@ tags:
 
 但是还有一个问题，写备份的时候会不会出现 partial write 呢？应该也是有可能出现的，但是此时数据库页面还没有进行修改，对于出现部分写的 double write 页我们可以直接丢掉。
 
-另外 double write 虽然需要每个数据页写入磁盘两次，但是由于第一次写是顺序写入磁盘，速度比实际写入数据页时的随机写入要快，整体上开启 double write 只会导致性能下降 5% ～ 10%。（待考证）
+另外 double write 虽然需要每个数据页写入磁盘两次，但是由于第一次写是顺序写入磁盘，速度比实际写入数据页时的随机写入要快，整体上开启 double write 只会导致性能下降 5% ～ 10%。（//TODO：待考证）
 
 如果能够保证页面原子性的写入磁盘中，就不会出现 partial write，比如把 DB block 大小设为与 OS page 大小相当。另外有一些文件系统本身提供了防止 partial write 的机制，如 ZFS 文件系统[^2]，FusionID，DirectFS等 (//TODO:needs update)
 
@@ -134,6 +135,7 @@ tags:
 [^3]: [Difference between Page and Block in Operating System][4]
 [^4]: [现代操作系统 - 第9章 文件系统]()
 [^5]: [计算机存储术语: 扇区，磁盘块，页](https://zhuanlan.zhihu.com/p/117375905)
+[^6]: [Wikipedia - x86-64:虚拟地址空间的细节](https://zh.wikipedia.org/wiki/X86-64)
 
 [1]: https://github.com/wususu/effective-resourses/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95(InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E)%E7%AC%AC2%E7%89%88.pdf
 [2]: https://www.percona.com/blog/2006/08/04/innodb-double-write/
