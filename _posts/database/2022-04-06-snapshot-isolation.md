@@ -10,7 +10,7 @@ tags:
   - database
 ---
 
-之前在事务的介绍中，我们提过事务定义有 Serializable、Repeatable_Read、Read_Committed、Read_Uncommitted 四种隔离等级。我们今天要介绍的快照隔离（Snapshot Isolation）也是隔离等级的一种，是采用MVCC实现并发控制时所得到的隔离级别，大概位于 Serializable 和 Repeatable_Read 之间，也就是说快照隔离比可重复读的隔离级别要高，不会出现幻象问题；但是又没有完全达到冲突可串行化，也就是说会可能会出现别的问题。我们今天就来一探究竟，看看快照隔离到底会出现什么问题，该如何解决。
+之前在事务的介绍中，我们提过事务定义有 Serializable、Repeatable_Read、Read_Committed、Read_Uncommitted 四种隔离等级。我们今天要介绍的快照隔离（Snapshot Isolation）也是隔离等级的一种，是采用MVCC实现并发控制时所得到的隔离级别，大概位于 Serializable 和 Repeatable_Read 之间，也就是说快照隔离比可重复读的隔离级别要高，不会出现幻象问题；但是又没有完全达到冲突可串行化，可能会出现别的问题。我们今天就来一探究竟，看看快照隔离到底会出现什么问题，该如何解决。
 
 关于快照隔离的历史我们暂且不深究，大概了解到之前之所以只提四种隔离级别没有快照隔离是因为 SQL-92 标准是基于数据库锁机制提出的，对 MVCC 没有充分的了解[^0]。还是来简单看下快照隔离的概念：使用多版本并发控制机制（Multiversion Concurrentcy Control）来进行并发控制，在事务开始执行时，写事务会先生成数据库的一份“快照”，在快照上进行修改，因为快照只有当前事务可见，所以该写事务与其他事务是完全隔离开的，只有它提交之后快照中进行的修改才会被应用到数据库中；因此读事务的实现就变得简单了，无需等待写事务的完成，直接读取当前数据库最新的状态即可，如果写事务回滚了其他读事务完全不会看到它曾进行的修改。
 
@@ -33,6 +33,35 @@ first committer wins 的思路是：在事务T进入提交状态时，检查是�
 
 总结来说，快照隔离等级下，没有RR级别中会出现的幻象问题，但是会出现写偏斜（有些地方似乎会把写偏斜也称谓 write skew style phantom，我们这里还是把二者区分开）可能会破坏数据库的一致性，使用时可根据实际场景判断是否需要更高的隔离级别。
 
+### update 
+
+---
+update 2022-07-15  
+没想到这么快就需要纠正自己的错误了；看了ANSI SQL Isolation Levels的论文[^4]之后，发现这1995年的论文对于MVCC对应的SI隔离等级其实已经有一个相当明确的陈述了。根据论文的描述，SI其实并不能说高于RR，因为SI会出现RR中不可能出现的写偏斜 A5B；但是SI不会出现狭义的幻读A3，尽管SI允许广义的幻读P3；因此论文里将SI和RR放在同一个层级上；
+
+
+```
+w1[x]表示事务1写了数据项x，r2[x]表示事务2读数据项x，r1[P]/w1[P]分别表示事务1读取/写入满足某个谓词P的数据项；c1/a1表示提交/中止；
+
+P0: w1[x]...w2[x]...(c1 or a1) && (c1 or a2)            Dirty Write
+
+P1: w1[x]...r2[x]...(c1 or a1) && (c2 or a2)
+A1: w1[x]...r2[x]...(a1 and c2 in either order)	        Dirty Read
+
+P2: r1[x]...w2[x]...(c1 or a1) && (c2 or a2)
+A2: r1[x]...w2[x]...c2...r1[x]...c1				              Non-Repeatable Read or Fussy Read
+
+P3: r1[P]...w2[y in P]...(c1 or a1) && (c2 or a2)
+A3: r1[P]...w2[y in P]...c2....r1[P]...c1 			        Phantom
+
+P4: r1[x]...w2[x]...w1[x]...c1		                      Lost Update
+
+A5A: r1[x]...w2[x]...w2[y]...c2...r1[y]...(c1 or a1)	  Read Skew
+
+A5B: r1[x]...r2[y]...w1[y]...w2[x]...(c1 and c2 occur)	Write Skew
+```
+---
+
 The End
 
 ------------------
@@ -41,5 +70,7 @@ The End
 [^1]: [数据库系统概念第六版 15.7]()
 [^2]: [数据库系统概念习题答案](https://www.db-book.com/db6/practice-exer-dir/15s.pdf)
 [^3]: [知乎 - 更新丢失、写偏、幻读：数据库事务从快照隔离到可序列化][3]
+[^4]: [Berenson H, Bernstein P, Gray J, et al. A critique of ANSI SQL isolation levels[J]. ACM SIGMOD Record, 1995, 24(2): 1-10.][4]
 
 [3]: https://zhuanlan.zhihu.com/p/339710842
+[4]: https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-95-51.pdf
