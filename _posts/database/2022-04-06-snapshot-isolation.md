@@ -41,7 +41,8 @@ update 2022-07-15
 
 
 ```
-w1[x]表示事务1写了数据项x，r2[x]表示事务2读数据项x，r1[P]/w1[P]分别表示事务1读取/写入满足某个谓词P的数据项；c1/a1表示提交/中止；
+w1[x]表示事务1写了数据项x，r2[x]表示事务2读数据项x,
+r1[P]/w1[P]分别表示事务1读取/写入满足某个谓词P的数据项；c1/a1表示提交/中止；
 
 P0: w1[x]...w2[x]...(c1 or a1) && (c1 or a2)            Dirty Write
 
@@ -49,17 +50,20 @@ P1: w1[x]...r2[x]...(c1 or a1) && (c2 or a2)
 A1: w1[x]...r2[x]...(a1 and c2 in either order)	        Dirty Read
 
 P2: r1[x]...w2[x]...(c1 or a1) && (c2 or a2)
-A2: r1[x]...w2[x]...c2...r1[x]...c1				              Non-Repeatable Read or Fussy Read
+A2: r1[x]...w2[x]...c2...r1[x]...c1                     Non-Repeatable Read or Fussy Read
 
 P3: r1[P]...w2[y in P]...(c1 or a1) && (c2 or a2)
-A3: r1[P]...w2[y in P]...c2....r1[P]...c1 			        Phantom
+A3: r1[P]...w2[y in P]...c2....r1[P]...c1               Phantom
 
-P4: r1[x]...w2[x]...w1[x]...c1		                      Lost Update
+P4: r1[x]...w2[x]...w1[x]...c1                          Lost Update
 
-A5A: r1[x]...w2[x]...w2[y]...c2...r1[y]...(c1 or a1)	  Read Skew
+A5A: r1[x]...w2[x]...w2[y]...c2...r1[y]...(c1 or a1)    Read Skew
 
-A5B: r1[x]...r2[y]...w1[y]...w2[x]...(c1 and c2 occur)	Write Skew
+A5B: r1[x]...r2[y]...w1[y]...w2[x]...(c1 and c2 occur)  Write Skew
 ```
+
+// TODO: A6 anomaly
+
 ---
 
 The End

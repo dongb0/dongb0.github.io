@@ -68,7 +68,7 @@ tags:
 
  WAL（Write Ahead Log） 机制是指在一次写操作被应用到数据库**之前**，需要写在日志系统中记录下这次写操作的修改并持久化到磁盘。更具体的说是*内存中的某个 dirty page 写入磁盘之前，所有与之相关的日志都必须先持久化到磁盘*。
 
-### 延伸：InnoDB中的double write
+### 延伸：什么是 partial write 问题
 
 > 其实这篇文章就是为了搞清楚什么是 partial write 以及 InnoDB 的 double write 机制才写的（因为搞不清楚为什么不能直接redo），属实是为了这点醋包的这顿饺子了。
 
@@ -87,7 +87,6 @@ tags:
 - sector  
   扇区的概念来自于传统机械硬盘，通常为 512 Byte，是机械硬盘中最小的读写单位；SSD中为了兼容也有一个概念上的扇区(logical sector)，目前也出现了使用新标准4KB扇区的硬盘。
 
-  // TODO: Advanced format
   // TODO：对于机械硬盘的历史发展需要补充了解，PS：加上SSD
   // TODO：开新坑介绍HDD和SSD
 
@@ -114,7 +113,7 @@ tags:
 - DB Page
   数据库读写数据的单位，InnoDB默认为16KB。
 
-### 延伸2：如何避免 partial write 问题
+### 延伸2：InnoDB中的double write
 
 [博客3][3]提到日志的 block 一般为 512 Byte，可以认为日志本身不会出现 partial write。InnoDB的 double write 机制则可以很好的解决数据页面的 partial write，大体流程如下：
 
@@ -124,7 +123,7 @@ tags:
 
 另外 double write 虽然需要每个数据页写入磁盘两次，但是由于第一次写是顺序写入磁盘，速度比实际写入数据页时的随机写入要快，整体上开启 double write 只会导致性能下降 5% ～ 10%。（//TODO：待考证）
 
-如果能够保证页面原子性的写入磁盘中，就不会出现 partial write，比如把 DB block 大小设为与 OS page 大小相当。另外有一些文件系统本身提供了防止 partial write 的机制，如 ZFS 文件系统[^2]，FusionID，DirectFS等 (//TODO:needs update)
+如果能够保证页面原子性的写入磁盘中，就不会出现 partial write（仅仅把 DB block 大小设为与 OS page 大小相通似乎并不能解决 partial write），有一些文件系统本身提供了原子性写入的能力，如 ZFS 文件系统[^2]，DirectFS等。 (//TODO:needs more introduction)
 
 -------------
 
