@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[algorithm/hash] 加密哈希与非加密哈希"
+title: "[algo/hash] 加密哈希与非加密哈希"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -8,11 +8,12 @@ mathjax: true
 hidden: false
 tags:
   - algorithm
+  - hash
 ---
 
 > 之前大概知道MD5和SHA-1/SHA-2都是某种哈希算法，但是看了实现感觉跟数据结构课上学到的哈希函数不是同一个东西，最近才知道哈希算法分为加密/非加密哈希，故挖此坑。~~（另外之前略微了解过几种相似哈希算法，不知道是不是还能开个新坑）~~
 
-## 二者的区别（我猜的）
+## 二者的区别
 
 首先我们要明确的一点是，加密哈希和非加密哈希都是哈希算法，都是接收原始数据输入，输出一个哈希值。区别在于，加密哈希算法必须要满足几点安全性要求，才能被称为一个加密哈希算法[^1]：
 
@@ -32,7 +33,6 @@ tags:
 
 
 ### FNV 
-
   
   python 3.4之前使用  ，之后使用SipHash [] /////引证
 
@@ -67,9 +67,9 @@ FNV目前有3个版本，分别是FNV-0，FNV-1，FNV-1a。其中FNV-0与FNV-1�
 > That string was used because the person testing FNV with non-zero  
    offset_basis values was looking at an email message from Landon
 
-其他不同位数的FNV_offset_basis和FNV_prime详见[wiki](1)中的表。
+其他不同位数的FNV_offset_basis和FNV_prime详见[wiki][1]中的表。
 
-参照[FNV文档](2)中关于FNV安全性的章节，其中解释FNV算法是非加密算法的原因有3点：
+参照[FNV文档][2]中关于FNV安全性的章节，其中解释FNV算法是非加密算法的原因有3点：
 
 1. A cryptographic hash should not have a state in which it can stick for a plausible input pattern，可能是指加密哈希算法在接受（处理）某种模式的输入时不应一直保持同一个状态（同一个哈希值），而FNV-0在处理全0的输入时，哈希值一直为0，直到读取到非0数据。
 2. Diffusion？/////待更新
@@ -84,12 +84,22 @@ FNV目前有3个版本，分别是FNV-0，FNV-1，FNV-1a。其中FNV-0与FNV-1�
 ### murmur3
 
 
+### memhash (golang)
+
+
 ### 各种非加密哈希算法的碰撞率
 
 ## 加密哈希
 
 包括MD5，SHA族的哈希算法，，，等都属于
 
+
+## 哈希表插入和查询的平均时间复杂度
+
+我们都知道哈希表的（插入/删除）平均时间复杂度是O(1)，但是为什么要强调*平均*，因为碰到扩容、冲突等情况。。。
+
+
+// TODO：一致哈系算法
 
 
 [1]: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV_hash_parameters

@@ -13,9 +13,9 @@ tags:
 
 leetcode 上动态规划 tag 下碰到几道矩阵的题目，记录一下解题思路。
 
-[leetcode 221](1)  
-[leetcode 1277](2)  
-[leetcode 764](3) // TODO
+[leetcode 221][1]  
+[leetcode 1277][2]  
+[leetcode 764][3] // TODO
 
 1. leetcode 221  
   找一个 m × n 矩阵（由0和1构成）中，1 组成的正方形的最大面积。
@@ -85,6 +85,7 @@ leetcode 上动态规划 tag 下碰到几道矩阵的题目，记录一下解题
   ```
 
 3. leetcode 764 // TODO  
+
 
 
 --------

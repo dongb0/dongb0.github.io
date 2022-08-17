@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[Computer Neworking] DNS"
+title: "[Nework] DNS"
 subtitle: 
 author: "Dongbo"
 header-style: text

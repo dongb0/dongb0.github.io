@@ -17,7 +17,7 @@ tags:
   
   - 出错原因
 
-     PeerStorage的Get/Snap请求处理逻辑错误，直接从leader的state machine中读取然后返回查询结果；如果是正常的leader这样确实能返回正确结果，但是被分割的leader在这种逻辑下也会向client返回过时的数据；另外，分区或其他原因导致leader切换时，新leader的applyIndex可能并没有赶上commitIndex，但是raft认为commit的日志所对应的请求已经处理完毕并且返回响应结果，所以也可能查询不到value。
+     处理 PeerStorage的Get/Snap 请求，直接从leader的state machine中读取然后返回查询结果；如果是正常的leader这样确实能返回正确结果，但是被分割的leader在这种逻辑下也会向client返回过时的数据；另外，分区或其他原因导致leader切换时，新leader的applyIndex可能并没有赶上commitIndex，但是raft认为commit的日志所对应的请求已经处理完毕并且返回响应结果，所以也可能查询不到value。
   - 解决方法
     
     TODO：什么是线性一致

@@ -11,7 +11,7 @@ tags:
   - c++
 ---
 
-> 之前搜索过好几次都记不住c++自定义类型用作unordered_map/unordered_set键时，哈希函数应该怎么写，java的倒是记得要重载hash和equals两个函数。所以还是一并做个总结好了。
+> 之前搜索过好几次都记不住c++自定义类型用作unordered_map/unordered_set键时，哈希函数应该怎么写，java的倒是记得要重载hash和equals两个函数。所以还是一并做个总结好了。 
 
 ### C++自定义键值类型
 

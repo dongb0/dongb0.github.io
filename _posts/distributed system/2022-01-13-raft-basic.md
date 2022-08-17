@@ -21,7 +21,7 @@ tags:
 
 - Two-Phase Commit(2PC)
 - Three-Phase Commit(3PC)
-- Percolater
+- Percolator
 
 其他还有一些算法能够实现集群数据一致的，如：
 - Paxos
@@ -29,9 +29,11 @@ tags:
 - ZAB
 - Viewstamped Replication
 
+后面这些算法我只略微了解过 Raft 和 ZAB，感觉上来说它们似乎跟前面几种分布式事务提交协议略有不同，虽然目的都是为了保证数据一致性。嗯...这块内容之后再深入看一下。
+
 // TODO：needs updte
 
-可以简单介绍一下 2PC 协议。简而言之 2PC 将事务的提交分为两个阶段[^2]：
+这里先简单介绍一下 2PC 协议。简而言之 2PC 将事务的提交分为两个阶段[^2]：
 
 // TODO
 
