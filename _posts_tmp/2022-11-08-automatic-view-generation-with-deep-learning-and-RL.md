@@ -228,7 +228,7 @@ A. ILP Problem and Iterative Optimization
 2）Optimizing Iteratively
 该问题对于 large workload 还是难解，这里考虑的方式是分别优化 Z 和 Y；即先将 Y 看作常量来优化 Z，然后将 Z 看作常量来优化 Y；
 
-// 这，，，可行吗？// 优化问题完全不懂欸
+// 这，，，可行吗？// 优化问题完全不懂
 
 Initializing Z and Y
 随机初始化 zj 为 0或1 并记录此时最大增益；然后初始化 Yij 为 0 或 1（要满足约束条件；

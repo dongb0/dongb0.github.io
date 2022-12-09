@@ -229,6 +229,10 @@ iterative selection for multi-column
 算法停止条件也有所区别，
 主要还是看论文里的表格。
 
+CoPhy, DB2Advis, Extend, Relaxation 这四种算法选择的依据是 benefit per storage unit
+
+AutoAdmin, Dexter, Drop, DTA 则单纯看 benefit，不考虑其他存储和维护的限制（但是这些约束在 视图选择 问题中常常需要考虑，尤其是早期的研究
+
 3.10 Machine Learning-based Approaches
 有若干基于机器学习的索引选择方法，不列举
 主要基于 TPC-C workload，忽略 index interaction；
