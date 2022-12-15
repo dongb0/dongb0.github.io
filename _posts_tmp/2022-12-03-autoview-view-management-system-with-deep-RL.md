@@ -122,7 +122,7 @@ Merging Query Plan Tree：
 合并完之后，统计每个节点在 图中（合并的？）频率，选取其中 benefit 高的（多少？）作为 candidate
 
 4 MV Selection
-类似之前的 IIP 定义
+类似之前的 ILP 定义
 
 A. Benefit/Cost Estimation of MV Candidates
 
