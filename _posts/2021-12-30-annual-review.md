@@ -8,6 +8,7 @@ mathjax: true
 hidden: false
 tags:
   - life
+  - review
 ---
 
 年终报告快轮到我了，到底还是没法静下心看代码，趁这个时间把2021的年度总结起个头吧。
