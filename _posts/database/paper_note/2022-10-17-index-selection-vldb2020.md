@@ -37,7 +37,7 @@ tags:
 
 当然后续看文献了解到，有些索引/视图选择工作是将算法内嵌到优化器中的，这需要对内核代码进行修改，实现比较复杂，所以大部分工作还是用前面的方法。
 
-> 另外打岔提一句，这篇论文的题目很有趣，*Magic mirror in my hand, which is the best in the land?An Experimental Evaluation of Index Selection Algorithms*，白雪公主里的经典台词么这不是：*magic mirror on the wall, who is the fairest one of all*。
+> 另外打岔提一句，这篇论文的题目很有趣，*Magic mirror in my hand, which is the best in the land?An Experimental Evaluation of Index Selection Algorithms*，致敬白雪公主里的经典台词么这不是：*magic mirror on the wall, who is the fairest one of all*。
 
 以上是看论文前的一些废话，下面正式开始阅读论文。
 
