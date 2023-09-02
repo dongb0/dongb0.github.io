@@ -1,13 +1,15 @@
 ---
 layout: post
-title: "[]"
+title: "[db/thesis] 3 - DynaMat: A Dynamic View Management System(sigmod1999)"
 subtitle: 
 author: "Dongbo"
 header-style: text
 mathjax: true
 hidden: false
 tags:
-  - paper
+  - database
+  - paper reading
+  - view selection
 ---
 <!-- // Q1：Data Cube Lattice 是什么呢
 // Q2：这个 DynaMat 不需要 lattice 是吧？//好像还是要的？用来找 f-father -->
@@ -19,33 +21,6 @@ tags:
 
 摘要部分告诉我们，本文设计的 DynaMat 系统可以持续接收 incoming query、调整物化视图来提供最好的性能，并通过实验证明该系统性能 outperforms optimal static view selection。听起来很不错是不是，虽然没指明是什么样的 optimal algorithm，但好像是我们想要的效果。那么来具体看 DynaMat 如何设计的。
 
-<!-- abstract 
-
-数据仓库中自动选择和管理物化数据的工具很重要；
-
-本文提出一种能够动态物化数据来匹配工作负载的系统，DynaMat，它也将维护限制（时间限制和空间限制）纳入考虑。
-
-DynaMat 会在运行过程中根据查询，在给定的 maintenance window 内调整更新物化视图；
-
-本文将 DynaMat 与一个静态选择算法进行了对比，在 DXetailed Cost Savings Ratio 的度量标准下，DynaMat 表现更为优异； -->
-
-<!-- 1 Introduction
-
-文中提到 \[HRU96, GHRU97, Gup97, BPT97, SDN98] 这些工作都是静态的视图选择，通常工作在 空间限制 的约束条件下；
-
-不过主要问题是，静态的视图选择 可能会 outdated（// 确实存在这一可能，不过不知道现实场景中，这一可能出现的频率多高？需要工业界的数据支持啦，学术研究不搞这些）
-
-注意：微软的 AutoAdmin 能提供类似功能？ 在索引选择里面也看到了；
-
-Another drawback of static view selection：没有调整 wrong selection 的机会；
-
-随着磁盘价格/每单位存储空间 的下降，存储空间限制通常不再是问题了；相反，是视图的维护时间，限制了我们不能过多的物化； // 一些研究 \[Gup97, BPT97] 考虑了这些问题 //还没看，还有另外的几篇 \[TS97] \[DDJ+ 98]
-当然它们都没有考虑动态的视图选择，只能工作在静态环境下；
-
-主要思路：不要浪费（一次查询）的结果，尝试重复利用，来将查询的计算开销分摊到其他查询上；
-
-novel goodness measure， -->
-
 Introduction介绍了决策系统的 dynamic nature，比如用户在data repository中根据兴趣进行 ad hoc 查询时，workload是会不断变化的，并且变化模式很难准确预测。
 
 > 不过我们不知道workload变化的频率，如果我们收集一段时间的query再用静态方法重新训练更新物化视图，是否来得及？
@@ -53,6 +28,7 @@ Introduction介绍了决策系统的 dynamic nature，比如用户在data reposi
 > 这可能需要根据具体场景分析，有比较好的（大规模？）场景或许可以根据需要选择/定制方法，然后搞一篇论文？
 
 同时还提到，由于存储设备容量的不断增加，空间限制不再是视图选择问题的主要约束；相反，维护成本开始成为需要考虑的主要因素。因为物化的视图越多，维护更新的时间窗口就可能越大。如果数仓需要停机来更新视图的话，这将直接降低数仓的可用时间。（这么看来文章会有一些措施来解决这个问题咯？）
+> 并没有，还是 off-line 的维护啊
 
 以及，提到设计的主要思路是：不要浪费（一次查询）的结果，尝试重复利用，来将查询的计算开销分摊到其他查询上。（很典型的缓存思想嘛，那么跟查询缓存有什么区别？）
 
@@ -73,17 +49,28 @@ DynaMat 架构上简单概括来说，最主要的是在硬盘上开辟的 *view
 DynaMat 的运行可以分为 1.响应查询, 2.更新视图 两个阶段。响应查询阶段，流程简单概括来说就是先去 *V* 查询能够使用缓存来回答查询，能则走 *V* 中存储的数据，不能则从基表计算数据，并判断是否要将新的数据存入 *V* 中；更新视图阶段，文章暂时假设更新过程是 off-line 的，同时没有新查询到达。
 
 
+sec 2.2 介绍 view pool 中的存储单元。先扯了半页 Data Cube，将查询映射为一个或多个 MRF（Multidemesional Range Fragment），作为 view pool 的存储单元。（看上去感觉跟R树好像有点关联，唉但是当初没有学会）
 
-sec 2.2 介绍 view pool 中的存储单元。先扯了半页 Data Cube（另一篇文章的 //TODO：改引用 // 这儿就先跳过不看了），将查询映射为一个或多个 MRF（Multidemesional Range Fragment），作为 view pool 的存储单元。
+> Data Cube定义在 HARINARAYAN V, RAJARAMAN A, ULLMAN J D. Implementing data cubes efficiently[J]. AcmSigmod Record, 1996, 25(2): 205-216. 里，但我们不打算展开了，看得并不是很懂。
 
-// TODO MRF -> MR Query -> DataCube，所以 MRF 大概什么样总得介绍一下吧？
+> 啊，不想细看了，当时看的时候就只知道是在缓存池中存放了查询数据，如果缓存满了，就通过 LRU/FIFO 等替换策略更新缓存池，然后更新过程中会下线不响应新的查询。大概就先这样吧。
 
 
-> 啊，不想细看了，当时看的时候就只知道是在缓存池中存放了查询数据，如果缓存满了，就通过 LRU/FIFO 等替换策略更新缓存池（具体用）。就先这样吧。
+---------------
 
+2023-09-02 update:
+我答辩回来了.jpg
+
+回答一下文章开头提出的问题，答辩这天有位老师问我，想过索引和视图的区别吗？为什么会有对索引的动态选择，但是很少有对视图的动态选择研究呢。我还真被问住了。然后他告诉我，索引在存储上可能出现碎片化的问题，物化视图作为表来存储，不太会出现这种情况。所以用动态物化视图（选择）可能还不如直接上表。
+
+呃说实话，索引存储上为什么会有碎片化我都没搞清楚，一般索引是组织成b+树的形式不是吗？（虽然也有别的类型）叶子存放的位置确实不保证连续的，但是DBA在管理索引的时候不也是通过一个索引名来操作吗？放到物化视图里，能根据负载变化自动管理物化视图，不也应该能减轻一些人力成本吗？
+
+搞不懂，他是不是哪里说错了？对动态的物化视图选择概念没理清楚？还是我水平太低了不能理解他说的问题？
+
+之后入职了再去问问师兄吧。
 
 ------
-End(Temporary)
+The End
 
 
 <!-- 
