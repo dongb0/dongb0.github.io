@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[Raft] 3 - 集群成员变更"
+title: "[共识算法] 2 - Raft Membership Change"
 subtitle: 
 author: "Dongbo"
 header-style: text

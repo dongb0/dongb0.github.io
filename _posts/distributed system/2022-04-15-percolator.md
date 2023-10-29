@@ -10,6 +10,7 @@ catalog: true
 tags:
   - distributed system
 ---
+> 其实一直没搞懂 percolator 所属的类别
 
 好，今天我们来看 Percolator。
 
