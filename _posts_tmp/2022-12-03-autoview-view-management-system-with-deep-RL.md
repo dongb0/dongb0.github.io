@@ -43,7 +43,8 @@ storage budget,
 1) MV candidate generation
 2) MV Cost/Benefit estimation
 3) MV Selection
-4) MV-aware query rewriting // 啊这个没有搞过的东西 // 当获取新的查询，能够利用现有 mv 的话，要基于选择的 mv 重写该查询
+4) MV-aware query rewriting // 啊这个没有搞过的东西 // 当获取新的查询，能够利用现有 mv 的话，要基于选择的 mv 重写该查询； 
+// 看不懂他这里 rewrite 到底搞了什么东西
 
 challenges：
 1）mv 选择需要估算 mv 带来的增益，但现有方法不够？ // 文献\[1,12]

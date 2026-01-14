@@ -12,6 +12,8 @@ tags:
 
 // 简单过一下这篇论文，只看感兴趣的部分；
 
+// 如何应用于 unseen workoad/query？
+
 abstract
 
 1）具体使用了什么RL方法？
@@ -157,7 +159,7 @@ Concatenation and normalization
 
 归一化是为了提升网络的学习表现；activation function 本来可能出现大规模输入下梯度消失的问题？// 就是通过这种方式来解决的；
 
-number pf features
+number of features
 大概的估算就是上面 fig 4 例子中的 feature 数量
 F = N * R + N + N + MI + K（被至少1个query包含的attribute
 对于 TPC-DS，上述计算的特征数量约为1750
@@ -224,6 +226,33 @@ action space（很关键，将决定 agent 能创建哪些index；
 
 5 Implementation
 
+RL 算法中的，加上 invalid action masking；
+PPO
+Policy ?? Optimization
 
+使用 Stable Baseline 文献\[26]
+// 好像是一个实现了若干RL算法的库？或者项目？似乎可以直接用？有 DQN 和 PPO 之类的
+
+// Stable Baselines is a set of improved implementations of reinforcement learning algorithms based on OpenAI Baselines.
+
+https://github.com/hill-a/stable-baselines
+看看这里实现的算法是不是可以直接用
+
+latent semantic indexing model （用于workload representation的）使用以下文章的模型
+Software Framework for Topic Modelling with Large Corpora
+
+// 在研究现状里可以加上 PPO 引用
+
+6 Experiment
+...
+
+6.3 
+
+RL 算法的训练时间比较长，比 extend 也要更长一些；另外，对于 index selection，有许多训练开销来自与对优化器的 cost request；因此很多算法实现了 cost request caching，（也因为每次请求时只要条件相同得到的结果都是一样的
+
+Effetiveness of action masking
+总结来说，缩短了训练时间，实验结果也表明，不使用masking的方法，在实验的数据集上即使训练了更长的时间也难以收敛（10倍更长，且延长了训练时间后算法性能也难以达到SWIRL的水平
+
+// 就大概这一结论
 
 

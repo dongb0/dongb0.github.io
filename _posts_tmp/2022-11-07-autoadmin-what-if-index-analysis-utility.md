@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[]"
+title: "[db/thesis] 4 - AutoAdmin: What-if Call"
 subtitle: 
 author: "Dongbo"
 header-style: text
@@ -10,10 +10,13 @@ tags:
   - paper
 ---
 
-abstract
+> 读这篇的初衷是因为后来很多文献会提到 "What-if Call"，最早使用这个术语的文献就是这一篇，所以我们想试着读读看，了解一下这个概念是什么，以及怎么实现这个功能的。
+
+
+<!-- abstract
 建立索引能够大幅提升数据库的查询性能，因而索引的选择至关重要；这项工作通常由 DBA 负责。
 
-这里提供了 SQL Server 上实现的一项索引量化分析工具，能够帮助 DBA 分析一个“虚拟”索引（hypothetical indexes）能够带来的增益（没有实际建立物理索引结构），也称为 what-if indexes （后续可能包括了mv之类的评估，毕竟类似的结构
+这里提供了 SQL Server 上实现的一项索引量化分析工具，能够帮助 DBA 分析一个“虚拟”索引（hypothetical indexes）能够带来的增益（没有实际建立物理索引结构），也称为 what-if indexes （后续可能包括了mv之类的评估，毕竟类似的结构 -->
 
 impact analysis tool
 

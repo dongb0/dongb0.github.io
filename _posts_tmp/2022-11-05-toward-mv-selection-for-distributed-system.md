@@ -99,6 +99,97 @@ sec 6 conclusion
 
 
 
+4 Materilized View Selection
+
+1. Table Selection 来自之前一篇论文里 interesting table 的筛选方法
+2. 将 workload 分解为 aggr、join、predicate,然后重新组合来生成candidate
+3. 遗传算法 view selection
+
+Cost model 比较通用，能提供接口就行；
+sec 5.2介绍本文的 cost model
+
+
+4.1 Table Selection
+迭代 i 次，每次迭代 i = 1, 2, 3.。。 时，分别检查所有包含 1,2,3.。。个 table subset 的cost savning（如果这些table 被物化
+
+4.2 View Generation
+
+生成分为两步：
+1 生成模板，一类是包含join和predicate的，另一个类是包含group 和 aggr的
+2 按照“”的思想，将base candidate（聚合所有table join 的候选）拆分为只包含少量table和update的候选；这里使用了一种基于二叉树的分割方法
+
+Generation of generic candidate
+文中将mv候选分为两类，一类是通用的（可用于任何查询），另一类是aggr mv 候选（只能用于相同aggr聚合函数和selection predicate）
+
+base table candidate 是针对每个table subset而言的，包括：
+1）所有table的join
+2）select和join的predicate(的并集)
+3）table subset 中所有需要的column
+
+aggr candidate的模板包括：
+1）所有的 grouping clause
+2）所有的 aggr function
+
+Refinement of MV candidate
+
+这里定义查询的similarity为查询结果的交集重合程度。
+
+然后构建一颗binary tree来组织查询的predicate?
+树的根节点是包含所有查询的 base candidate,叶节点是应用于某个特定查询的mv
+// and？然后呢？
+
+然后按照以下三步：
+1）raise the tree。构造整个树首先从根节点开始，根节点是一个能应用于所有查询的 base candidate,然后将这些查询根据相关性分为两组，再根据这些查询的predicate给 children 节点添加过滤条件；这样的划分一直进行到每个叶节点只支持1个查询为止。
+2）remove inferior candidate。这一步将移除一些收益较少的节点，具体评估的度量是：维护视图的开销和它带来查询开销减少量之间的差值。
+//那么具体怎么计算这些开销呢？
+对于查询增益的计算：先假设这个视图在每个节点上都被物化，然后估算（通过优化器？）收益最大值
+
+更新开销也是类似计算方式：先假设视图在所有节点上存在，寻找其中更新开销最小的值，把他作为整个集群上该视图的更新开销（他们认为其他节点上可以通过replicate的方式来完成更新；
+
+虽然我不知道什么情况下每个节点上更新开销会不一样，（你们数据不对等吗？
+但是这样的假设似乎有一些问题，并不是那么合理。而且如何评估更新开销也没有比较清楚的介绍
+
+然后层级计算每个节点的增益，如果一个节点的增益大于他的children,那么就会丢弃children；
+如果小于children,那么这个节点就会被丢弃；
+
+经过这一步之后，不再是二叉树；
+3）add support mv
+筛选完之后，往里添加一些能够减少update cost 的candidate；这一步的思路是，某些mv可能可以作为许多mv更新的中间结果；
+
+判断的依据是：先找到一些 update expensive的table（公式，计算update cost 大于某个阈值）,然后通过移除这部分table来构造 table 集合，
+// 还是直接使用这部分table 构造集合？
+
+总之利用这些table 生成 support candidate,并且对比 support candidate 带来的update cost 收益，如果能够减小，就加入最终candidate中；
+
+// 不是很懂，他对每个 mv 都构造树？构造得过来？？数据量是多大？
+
+
+4.3 MV Selection
+这一步需要找到：1）需要物化的mv是哪些；2）应该在哪些节点上物化这些mv
+
+1）
+在选择init population上使用了一些规则：将candidate c 尽量物化在它的base table 在的节点；或者发起能够使用c的查询的那些节点上；
+
+2）
+通过一个 selection function：
+如果 avgSimilarity 小于某个阈值，就加到 next generation 中。
+
+像什么 fitness,都是怎么定义的？
+allocation metric？又是什么？
+
+
+5 Evaluation
+数据集也并不太大，20～100 store,每个store 4节点，10张表，15 query 14 update
+
+最大的实验约400 store,1000张表；此时要15分钟收敛；
+
+大约4分钟收敛，达到节省30%查询开销的效果
 
 
 
+对比最优解（通过遍历寻找）性能差距在0.01%以内，同时快很多倍（30sec vs 10hours）
+
+6 Conclusin
+
+// 但是有个很关键的地方我还不太清楚，如何将该算法应用在分布式的环境中？分布式这一场景，这算法做了什么改变？
+// 以及如何评估每个选择带来的开销和收益是否准确？

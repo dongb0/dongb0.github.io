@@ -78,6 +78,8 @@ v3 select city, product, sum(sales) from Sales_Data group by city, product;
 
 4 Candidate Materialized View Selection 
 
+// 这里大概说了怎么筛选，整体上也确实是 mv 的生成与筛选，但比较关键的一步：如何从 sql 到 mv（自动化地），这里没有描述（用的伪代码
+
 要搜索 workload 的所有相关mv 是不可能的，数量太多了：
 如果查询有 m 个选择条件，涉及 table subset T ，那么包含这 m 个选择条件任意子集的 mv 都属于 syntatically relevant；
 

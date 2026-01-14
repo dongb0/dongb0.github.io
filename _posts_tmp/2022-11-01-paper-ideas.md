@@ -236,3 +236,516 @@ bigsub 能扩展到支持数万条查询的 workload；且分布式；
 
 这些 BOO BOW，bag of word
 2020那篇用 LSTM 处理query生成候选的，这些技术点应该都可以作为相关技术里的内容（如果用到的话
+
+
+
+---------------
+TPC-DS 要用的话，可以用 index_selection_evaluation 的代码；//省点功夫
+
+
+---------------
+
+如果视图生成方法，MVPP和其他机器学习的方法能兼容（用同一个接口的话），
+可不可以尝试两（多）种生成方法啊？
+
+
+// TODO：如何用 SPES 搞 common subquery？
+// TODO：存储和维护的限制如何搞？
+
+// 怎么感觉 似乎 equitas 的 包含关系，更有利于作为候选视图呢？但是它又没有代码
+
+用 SPES 存在的问题包括：
+1）"VALUE","EXISTS","ROW","ORDER","CAST","INTERSECT","EXCEPT", " IN " 等关键字不支持，所以如果查询中包含这些关键字，那么这些 SQL 是不会被分析的；
+  解决方法：要不要考虑 MVPP 的方法来补充候选？
+
+这要看使用的 benchmark 里面是否存在这样的查询，（目前看来 JOB 应该是不太有的
+而且我们实验的时候，是否也可以像 2020 auto 文章那样，手动添加一部分查询（使得其中 SPES 能够识别的 overlap query 数量增加？）
+
+----------------
+
+algorithm 的写法
+可以参考 SPES 的
+
+
+----------- 
+2020 auto 对于小的benchmark,他们手工重写了查询，来利用mv的结果（为了比较cost estimation性能）；但是对于规模比较大的 benchmark,他们怎么做了呢？
+
+
+需要尽可能熟悉这 21 张表，才能自己做一些修改奥
+
+// 是否考虑将一些常数字段替换为 place holder？
+
+------------
+找到的 common subquery，如何实现成 candidate 接口，提供给那边python的算法呢？
+1. 文件？
+2. python 中调用 java 代码计算获得？
+
+---------------
+不支持 like 还可以把 所有的 like 条件去掉；
+但是所有写在 where 里面的 join, 是不是得自己重写？
+
+重写之后，是否可以识别出来？
+
+-------- 
+感觉不要研究现状，直接相关工作似乎也可以？
+那就还是可以继续保留在第一章
+
+然后第二章就是，深度强化学习相关技术+其他相关技术 // 到底选深度强化学习还是蒙特卡洛？
+// 蒙特卡罗 需要一个能够评估更新开销的 estimator，去哪搞？搞不了就只能算咯
+
+------------------
+
+实验三个问题：
+1. 如何选择恰当的 common subquery？
+2. 如何对选出来的查询进行编码？ // 什么意思，怎么把候选转化为算法的输入？
+3. 使用哪种方法进行视图选择？ // 蒙特卡洛是否还没有了解过?
+
+
+1. 需要去除不支持的语法部分（很多 like/in 不支持 呜呜呜呜，这个干脆文本处理过滤掉算了
+
+
+我好像可以照样说，面向大规模 （分布式 部分待定）数据库的视图选择算法
+
+如何处理大规模？ // 将查询映射为模板，怎么映射 也没有思路；幹，相似度？甚至都没有定义
+// 把较长时间没出现 hit 的 template 丢掉，随你怎么说
+// 反正 buckect size 设置那么大，对于查询比较小的情况那不是每个查询都可以独占一个 buckect
+
+TPC-DS 的查询大概长什么样子的？
+
+// 但是这样 SPES 好像比较难提取，需要改一下代码，把具体数字换成占位符吗？ // 怎么改？
+
+// 似乎要把 predicate 先去掉，来找 join 的部分； 在 SPES 上，先忽略 pred 做一轮，然后加上再做一轮？
+// 那么具体怎么去除？ 在判断等价 的 代码里，把predicate全部置空？应该可以吧？那就去看看他的代码到底怎么写；
+
+
+对于 JOB 规模不大的，我们可以在选出来 MV 之后，手工重写 对应SQL 执行来对比算法 与其他方法的性能；但是对于规模稍微大一些的benchmark,手工重写肯定不现实，这本来需要依赖于优化器的查询重写功能，但是现在除了Oracle有多少个优化器支持查询重写啊？  // 这一步怎么办，去问俩师兄要一个oracle的环境？看看 oracle 能不能提供这样的重写？或者干脆直接可以在 oracle 上跑实验？ 这个再议
+
+
+
+// 问师兄的问题：
+1. 数据集的选用，如何体现 大规模， JOB 和 TPC-DS 能说明吗？算了，再议
+2. 生成候选的方法，现在是这样，有没有修改意见？或者让我先跑起算法再说
+3. 怎么把候选，从执行计划（还是在Java里，变成能够 python 里的编码？；怎么
+
+// 对于那些 使用大量子查询 的 sql；怎么说？
+
+4. 如何衡量，某个物化视图的增益？对于索引来说，只要创建了就可以通过 explain 来测试；但是不支持查询重写利用物化视图的优化器，该怎么办？实际运行然后缓存？？这样注定就不能用在大一点规模的benchmark上，甚至如果候选太多，可能都很难办；所以这个问题得先看有没有 oracle 的环境，以及 oracle 能做什么； // 等等，好像还是可以手动重写查询，来利用 explain
+
+等下，pg优化器会考虑物化视图吗？？ // 还是不会的，就当作一个普通的表，oracle 是通过查询加入 hint，告知优化器可能需要使用MV 
+
+
+// 等等，condition 全部去掉，那么不就变成一整个的笛卡尔乘积了吗？
+// 会不会还不够丰富？再加上所有的 关联条件 的子集？ 通常在5个表左右，子集大概能有十几个，那么就把单个条件的去掉？至少两个以上的组合？// 先这么做看一看吧，如果之后发现代价太高通常都用不上再调整
+
+// 会不会 like 其实在语法解析时，是支持的；但是这里定义的 normalizedRule 不知道搞了什么东西；
+// TODO：明天查一查；顺带，这个 normalized 到底是干什么的，查一下论文；；这里的 normalized 是否还可以做一些 说明和修改？
+
+TODO：SPES 到底如何判断 
+
+SELECT * FROM name WHERE id < 1000;
+SELECT * FROM name WHERE 1000 > id; 是相等的？ // 输入一样、输出一样、构造的 condition 取反之后，条件不可满足；大概是这样吗？ 这部分例子（简单例子、复杂例子|论文里的|）的说明考虑放在前面的相关技术里？
+
+如果 WHERE 部分，都是两个 > 但是来自不同的字段，如 ID 和 IMDB_ID；SPES 从哪里判断 WHERE 的条件不一样呢？
+常量不一样的时候呢？
+
+以及：我需不需要，使用一个能够更精确估算 cardinality 的模型？还是一个能够估算 benefit 的？
+
+
+------------------
+
+TODO:
+index selection 里面，关于候选
+早期的有 syntatical analysis, knowledge-based approach  
+
+-----------
+SPES能不能通过对 QPSR 两个条件的分析（如果有一个不是来自 table 的表达式，而是常量，就先踢掉），感觉可以在 construct QPSR 的时候完成，或者 fuzzy match 时候做一下；
+
+
+数据集：TPC-DS JOB
+
+
+------------
+
+参考 AutoIndex,如何评估删除一个视图后的增益变化？
+大概是 policy tree 每个节点计算出一个增益值，删除该节点就减去该增益？
+
+
+-------------
+
+TODO：
+SPES 一连串的 JOIN 里面，从左到右，两个两个表 JOIN 作为候选，的部分，还没做
+如 a JOIN b JOIN c JOIN d
+现在只有 mv1：a JOIN b JOIN c JOIN d
+
+希望要做成
+mv1：a JOIN b JOIN c JOIN d
+mv2: a JOIN b
+mv3: b JOIN c
+mv4: c JOIN d
+mv5: a JOIN b JOIN c
+mv6: b JOIN c JOIN d
+就是总共 C_4^3 = 6 个，加上一些过滤条件，可能会更多
+
+// 等下，也就是说，这里的所有候选视图都需要在数据库上实际建表来评估吗...感觉吃不消啊
+// 先看看再说，到时候真放不下了再想别的办法；
+// 缓存啊缓存；但是如果删除某个视图之后，需要对新的查询进行评估...（那就得重新创建咯
+
+
+----------------
+
+怎么看 AutoIndex 的代码感觉都像是 只有贪心的部分
+
+----------------
+
+感觉最小的 candidate 不一定好使，还是得多生成一些比较模糊的（但是评估这部分 candidate 的开销好像。。。有点困难）
+// 需要做一点 控制？（比如不物化太多表连接（超过四五个的？
+
+
+
+
+-----------
+
+为了评估物化视图的执行开销，却需要先实际物化，是不是有些本末倒置
+
+但是评估物化视图对执行计划的增益，是查询优化问题，似乎又是另一个子领域
+
+数据库毕竟是一个工程化整体化的产品，组件之间相互依赖倒也很正常
+
+
+-----------
+具有mv重写查询能力的优化器（数据库），毕竟还没有开源版本的； 这也是现状；
+
+
+
+-----------
+
+需要考虑 cost 的归一化和标准化
+
+归一化
+$$
+x' = frac{x - min(x)}{max(x) - min(x)}
+$$
+
+
+标准化
+$$
+x = frac{x - \mu}{\sigma}
+$$
+
+-----------------
+其实 SPES 的基数（schema里设置表的 statistics 
+可能也还需要修改呢
+
+
+-----------------
+
+第一章 绪论
+短一些，相关工作放到后面第二章去
+
+第二章 研究现状及相关技术
+
+第三章 物化视图生成
+可以加进来一些
+
+第四章 视图推荐（增量更新
+
+MCTS;
+然后，为了加快收敛速度，用了下 WU-MCTS?
+
+第五章 实验
+
+第六章 结论
+
+
+materialized view 作为物理结构，需要调整的情况比较少；如果真的需要发生变动，那么重新训练几个小时、一天两天，也可以接受？
+
+
+有扰动情况下的选择？
+
+
+--------------
+
+用 mv size 作为实际cost的主要评估指标？
+哦，是不是也可以考虑用 explain select from mv 的代价？
+
+
+--------------
+MCTS的场景：
+
+比起使用深度强化学习学习做视图选择的方法，他们需要收集完整的 workload 之后开始训练，用已有的 workload 去估计未来一段时间的 workload；这需要基于一个假设：未来这段时间的 workload 与训练所采用的 workload 是相等或者相似的，这样的方法才能取得最佳性能。
+而且训练也需要更长的时间；
+
+如果在训练过程中，workload 发生变化，如扰动、出现新的 sql sequence等，这类方法对于这些问题是无法处理的，因为 workload 的采集已经完成了；如果要对这些新的 sql 推荐视图，只能等到下一次 重新采集 workload 重新训练。
+
+MCTS 方法可以增量的对 （视图进行更新，）在训练过程中可以将 新 workload 变化纳入 推荐算法的考虑当中；
+
+当然加入新 sql 会对收敛速度产生影响
+
+但，实验表明，当 workload 变化率不超过 （？%）时， MCTS
+
+
+-------------------------
+到底如何使用 NN 来预测 使用视图执行 sql 的cost,就留到以后再看吧，现在先把手上能做的工作做完（多写些 genereation 和 mcts 的代码
+
+
+-------------------------
+用 Calcite 完成查询重写和 重写后的执行计划开销 是否可行？
+（ 执行计划评估开销是可以有的，只要给它标注合适的数据量（这部分怎么做还得看呐
+首先我得先去看 calcite 怎么注册 mv
+
+// 暂缓，先把 python 那边算法的代码写好
+
+calcite 提供接口更新 meta data，提供一些简单的信息，rows num, table size
+calcite 的默认实现就可以计算出大概开销
+
+
+------------------------
+感觉候选的数量得限制在 几百（及以下 这个数量级，不能太多；
+
+
+------------------------
+现在还没有支持对 GROUP BY 中的列进行添加，不知道如果有 group by 之后候选sql是什么样的
+
+
+------------------------
+我这边有没有必要对索引和视图联合考虑啊？
+// 但是想要性能优于现有索引推荐工具恐怕是比较难喔
+
+------------------------
+实验参考 HMAB 的话，他提到 DBA bandit 里面是通过实际执行 来评估的，创建开销之类的代价很大；
+
+1. 我这里的实验也可以考虑，先搞一个通过实际创建mv 和执行 SQL 评估代价的？ 然后对比 使用 优化器过滤 不被使用的 mv ，二者运行时间的差距对比？
+
+2. 我们是用 优化器 评估 cost 呢，还是像 bandit 那样用实际的运行时间来评估？
+
+
+
+----------------------
+
+如果能把数据库评估的部分，做好缓存，或者能够并行（感觉如果用 explain 而不实际执行的话，应该就可以并行了吧？）
+// 现在看数据库的负载好像还没跑满；但是需要修改 mv 状态的话；需要包在一个事务里？
+
+（需要创建视图，还是个问题；虽然可以通过预先创建来加快一点
+
+工作量：
+1. 候选生成
+2. 在线视图选择;; 动态？
+3. 算法可以并行？（速度有没有提高啊
+4. 实验，调整速度优于？
+
+
+-----------------------
+基于并行 MCTS 的视图推荐算法
+
+能够并行，主要是利用 MVCC 机制以及 adb 的查询重写依赖于实际视图 这两点；
+如果出现了虚拟视图，可能就不适用了；
+
+测试一下这样的思路可行否；
+如果分成两个数据库的话，是可以并行的；数据库CPU也可以拉满；
+
+
+-----------------------
+
+数据集：
+
+JOB
+extra JOB
+TPC-H
+人造？
+
+
+explain select min(note) from mv_sql1_idx0;
+
+
+------------------------
+
+mcts 训练 100 * 10 需要大概9小时 （JOB 目前全部 28 candidate）
+
+
+------------------------
+0424
+MCTS 在选择策略上，要不要对比一下 epsilon-greedy 和 那个什么 带温度的？
+
+
+------------------------
+0426
+
+我觉得，得先看一下 DRL 方法训练时间大概需要多久，来决定怎么定义一个比较有利于 MCTS 的动态选择问题
+
+
+-----------------------
+0427 
+
+加一章大概6～8页的 PPO，编码 workload？ 参考 SWIRL？ 
+
+
+-----------------------
+TOOO！！！！！ 0428
+强化学习一些基础概念： 
+
+model-based 
+model-free
+
+on policy
+off policy
+
+-----------------------
+TODO：翻了一下论文，想起来 DQN/PPO 似乎可以统一用 stable baseline 里的实现？
+链接：https://github.com/hill-a/stable-baselines
+
+
+-----------------------
+随机删除数据 postgres
+
+DELETE FROM table_name WHERE random() < 0.5;
+
+-----------------------
+
+有个问题：现在章节内容看起来太像凑字数的了，前后衔接也不紧凑，各个章节之间感觉没什么联系；
+TODO：需要大量修改/删减
+
+
+-----------------------
+
+想加一个 bigsub ？ 
+
+---------
+mv for 11a/11b (sql 38, 39)
+
+
+
+SET enable_matview_query_rewrite TO on;
+
+CREATE MATERIALIZED VIEW mv0 as
+SELECT t.id, t.name, t.country_code, t.imdb_id, t.name_pcode_sf, t.name_pcode_nf, t.md5sum, t0.id AS id0, t0.kind, t1.id AS id1, t1.keyword
+FROM (SELECT *
+FROM company_name
+WHERE country_code <> '[pl]' AND (name LIKE '%Film%' OR name LIKE '%Warner%')) AS t,
+(SELECT *
+FROM company_type
+WHERE kind = 'production companies') AS t0,
+(SELECT *
+FROM keyword
+WHERE keyword = 'sequel') AS t1
+
+ALTER MATERIALIZED VIEW mv0 SET (enable_query_rewrite=true);
+
+--
+CREATE MATERIALIZED VIEW mv1 as
+SELECT id, keyword
+FROM keyword
+WHERE keyword = 'sequel';
+
+ALTER MATERIALIZED VIEW mv1 SET (enable_query_rewrite=true);
+--
+
+SELECT MIN(cn.name) AS from_company,
+       MIN(lt.link) AS movie_link_type,
+       MIN(t.title) AS non_polish_sequel_movie
+FROM company_name AS cn,
+     company_type AS ct,
+     keyword AS k,
+     link_type AS lt,
+     movie_companies AS mc,
+     movie_keyword AS mk,
+     movie_link AS ml,
+     title AS t
+WHERE cn.country_code <> '[pl]'
+  AND (cn.name LIKE '%Film%'
+       OR cn.name LIKE '%Warner%')
+  AND ct.kind ='production companies'
+  AND k.keyword ='sequel'
+  AND lt.link LIKE '%follow%'
+  AND mc.note IS NULL
+  AND t.production_year BETWEEN 1950 AND 2000
+  AND lt.id = ml.link_type_id
+  AND ml.movie_id = t.id
+  AND t.id = mk.movie_id
+  AND mk.keyword_id = k.id
+  AND t.id = mc.movie_id
+  AND mc.company_type_id = ct.id
+  AND mc.company_id = cn.id
+  AND ml.movie_id = mk.movie_id
+  AND ml.movie_id = mc.movie_id
+  AND mk.movie_id = mc.movie_id;
+
+------------------------------------
+
+TPC-H 选几个看起来比较简单的多表查询？ TODO：去问一下师兄（可不可行
+Q2
+Q3
+
+Q5
+
+Q7
+Q8
+Q9
+Q10
+Q11?
+Q18
+Q21
+
+
+----------------------------------
+
+有点想试一试能不能给PPO做一个视图的编码，然后用到动态负载？
+
+
+---------------------------------
+
+想简略的看一看
+2012 MCTS Survey 的 sec 5、6
+
+
+---------------------------------
+WU-MCTS 用501.41s，感觉并没变快？ 但好歹是找到最优了
+
+
+---------------------------------
+
+对于 A join B join C join D 和
+    A join B join E join F
+WHERE ...common pred
+  AND A.c1 = B.c2
+
+这样的查询，SPES 能得到正确的候选吗？
+（目前的猜想是，加上优化之后，似乎可以？但是不能生成正确的sql（因为我实现的问题
+如果可以的话，那么在答辩（或者论文里）应该就可以说一说 SPES 的优点了
+
+---------
+不可以呢，因为从下层构造上来的 AlgeNode 会被合并
+
+但是也可以做一些改造，保留合并前的节点，用来生成更多候选；但是这个可以放到未来工作中，可以顺带提一嘴，但是现在估计就没功夫做了
+
+---------------------------------
+
+跟现有工作对比：可以跟 2020 automatic 对比，
+
+说明应用场景不同，而且 automatic-view 的工作重点是“基于深度学习的视图增益评估”，对于视图选择他们沿用之前2018年一项使用随机算法的工作里对视图选择的定义，
+
+他们分为两个子问题之后，其中第二个“选择哪些视图用于响应查询”，这在基于优化器的代价估计中似乎情况不同？直接由优化器选择 // TODO:对照一下他们为什么要拆出来这第二个子问题，是因为代价估计的神经网络需要吗？维度的考虑？
+// 还是单纯为了创新
+
+优点在哪？
+1. 简单快速，确定性？可以用于大搜索空间的问题（DRL通常比较难应用的场景
+
+MCTS应该会更快一些？或者说相同训练时间下能比DRL得到一个更加可靠的解
+（想一想怎么跟 DRL 做对比测试奥）
+
+缺点：
+1. 不具备泛化能力，基础的MSTC相当于用0-1编码表示所有选项（是否被选择），不能携带/表示更多信息；当场景稍微发生变化就需要重新训练；
+
+因此可以利用 神经网络 的 ？？ 表征能力（还是学习能力
+
+这有一篇不错的介绍 RL 并行概念的专栏
+https://zhuanlan.zhihu.com/p/490240729
+
+
+
+-------------------------
+
+stable baselines 通过 callback 来控制 episode 的数量
+
+https://github.com/hill-a/stable-baselines/issues/571
+
+That way, using a callback you could monitor the number of episode and exit when the desired number is reached.

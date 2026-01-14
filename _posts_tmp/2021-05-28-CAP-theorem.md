@@ -7,10 +7,10 @@ header-style: text
 mathjax: true
 hidden: false
 tags:
-  - paperReading
+  - paper reading
 ---
 
-> 太长不看版：分布式系统最多只能满足CAP条件（Consistency, Availablity, Patition-Tolerance）中的两个。但是我还是想知其所以然，尝试用自己拙劣的阅读理解能力解读一下论文 [Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services][1] 对CAP理论的证明。
+> 目前已知的结论：分布式系统最多只能满足CAP条件（Consistency, Availablity, Patition-Tolerance）中的两个。但是我还是想知其所以然，尝试用自己拙劣的阅读理解能力解读一下论文 [Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services][1] 对CAP理论的证明。
 
 
 首先文章先定义CAP的具体含义。

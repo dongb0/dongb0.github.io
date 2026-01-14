@@ -1,13 +1,15 @@
 ---
 layout: post
-title: "[]"
+title: "[db/thesis] x -  "
 subtitle: 
 author: "Dongbo"
 header-style: text
 mathjax: true
 hidden: false
 tags:
-  - paper
+  - database
+  - paper reading
+  - view selection
 ---
 
 // Q1：疑问：物化的视图谁来选择？ 为何不是直接选择 subset？来作为 static 维护的视图？

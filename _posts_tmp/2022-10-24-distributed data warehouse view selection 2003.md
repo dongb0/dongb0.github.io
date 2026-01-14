@@ -66,7 +66,9 @@ view v 是一组属性（attribute）{G1,...,Gn}的集合
 \[10, 6]，图中节点表示 single grouping combination（视图？关系？），边表示有向的推导关系
 
 3.2 Distributed Aggregation Lattice
-聚合网格（aggregation lattice） // 似乎是一个集中式算法就已经研究比较多的概念？
+聚合网格（aggregation lattice） // 似乎是一个集中式算法就已经研究比较多的概念？ 
+
+// 单纯follow 某一篇文章的工作罢了
 
 除了原本的聚合依赖边意外，
 要在图中加入表示通信开销的边（分布式网络中面对的问题），但这样会在图中引入环。论文中的方法将这些边扩展为二分子图，//？
