@@ -6,9 +6,16 @@ author: "Dongbo"
 header-style: text
 mathjax: true
 hidden: false
+catalog: true
 tags:
   - Linux
 ---
+
+`mmap`是linux提供的系统调用，用于将文件/设备映射到进程的虚拟内存地址中。随后进程可以像访问自己的内存一样来访问文件。
+
+这是以前很多中文博客中对mmap的解释，多半是从英文文档中按字面意思翻译过来的，没有解释清楚跟`mmap`的实际作用。
+
+比如为什么要“像访问自己的内存一样”访问文件？这有什么好处？什么场景适合用`mmap`、什么场景会带来overhead？这些问题我们一点点来看。
 
 ```
 #include <sys/mman.h>
@@ -20,18 +27,12 @@ tags:
                   void addr[length], size_t length);
 ```
 
-`mmap`是linux提供的系统调用，用于将文件/设备映射到进程的虚拟内存地址中。随后进程可以像访问自己的内存一样来访问文件。
-
-这是以前很多中文博客中对mmap的解释，多半是从英文文档中按字面意思翻译过来的，没有解释清楚跟`mmap`的实际作用。
-
-比如为什么要“像访问自己的内存一样”访问文件？这有什么好处？什么场景适合用`mmap`、什么场景会带来overhead？这些问题我们一点点来看。
-
 - Direct Access: It maps a file (or a portion of it) into a program's memory, bypassing explicit read and write system calls.
 - Lazy Loading: It uses demand paging, meaning data is only loaded from disk into physical RAM when a specific memory location is actually accessed.
 - Shared Memory: By using the MAP_SHARED flag, multiple processes can map the same file and communicate through it, creating an efficient form of Inter-Process Communication (IPC). 
 
 根据上述介绍，使用`mmap`之后，读取文件数据不再需要通过读写系统调用。
-> 这能节省什么？切换到内核态的开销吗？具体是指什么样的系统调用
+> TODO：这能节省什么？切换到内核态的开销吗？具体是指什么样的系统调用？page fault有切换到内核态的开销吗？
 
 `mmap`会按需加载数据，当数据不在内存时需要触发缺页中断，等待数据加载到page cache中。区别于普通read操作的是`mmap`不需要再从page cache拷贝数据到用户空间，而是由内核修改进程的页表，将虚拟地址指向刚才的page cache物理地址，减少了一次内核态到用户态的内存拷贝操作。
 
@@ -53,9 +54,9 @@ tags:
 
 除此以外还有：
 
-巨页映射 (MAP_HUGETLB)：利用内核的 Huge Pages（大页）机制分配内存（如 2MB 或 1GB 的页），可以减少页表条目
-预热映射 (MAP_POPULATE)：在映射建立时就提前填充页表（对于文件映射会触发预读），从而避免后续访问时产生的缺页中断
-锁定映射 (MAP_LOCKED)：将映射的内存锁定在物理内存中，防止其被交换（Swap）到磁盘
+巨页映射 (MAP_HUGETLB)：利用内核的 Huge Pages（大页）机制分配内存（如 2MB 或 1GB 的页），可以减少页表条目  
+预热映射 (MAP_POPULATE)：在映射建立时就提前填充页表（对于文件映射会触发预读），从而避免后续访问时产生的缺页中断  
+锁定映射 (MAP_LOCKED)：将映射的内存锁定在物理内存中，防止其被交换（Swap）到磁盘  
 
 
 示例
@@ -142,6 +143,16 @@ int main() {
     return 0;
 }
 ```
+
+## munmap, madvise
+
+二者都可以用于释放内存，区别在于`mmap`会解除内存映射，释放对应的虚拟内存，如果进程再访问对应虚拟内存地址会直接segment fault；`madvise`释放物理内存但虚拟地址依然是完整的，后续如果再访问该地址，内核会重新触发缺页中断来分配新的内存页。
+
+`madivse`有若干flag可以执行不同的操作：
+
+- MADV_WILLNEED：告诉内核“我马上要用这段内存了”。内核会在后台异步地将数据从磁盘预读进 Page Cache，从而隐藏后续访问时的缺页中断延迟。
+- MADV_SEQUENTIAL：建议内核进程将顺序访问这段内存。内核会激进地进行预读（read-ahead），并在读取后尽快释放前面已经访问过的物理页，避免污染 Page Cache。
+- MADV_RANDOM：告诉内核访问是完全随机的。内核将关闭预读机制，避免浪费大量的磁盘 I/O 吞吐量。
 
 --- 
 The End
