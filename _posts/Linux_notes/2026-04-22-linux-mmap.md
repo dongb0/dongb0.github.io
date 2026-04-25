@@ -32,7 +32,8 @@ tags:
 - Shared Memory: By using the MAP_SHARED flag, multiple processes can map the same file and communicate through it, creating an efficient form of Inter-Process Communication (IPC). 
 
 根据上述介绍，使用`mmap`之后，读取文件数据不再需要通过读写系统调用。
-> TODO：这能节省什么？切换到内核态的开销吗？具体是指什么样的系统调用？page fault有切换到内核态的开销吗？
+> 这能节省什么？
+> 并不能省下系统调用，mmap还是有可能触发缺页中断，这也是要切换到内核态执行的；但是能节省read/write从 page cache拷贝数据到用户空间的一次内存拷贝操作。
 
 `mmap`会按需加载数据，当数据不在内存时需要触发缺页中断，等待数据加载到page cache中。区别于普通read操作的是`mmap`不需要再从page cache拷贝数据到用户空间，而是由内核修改进程的页表，将虚拟地址指向刚才的page cache物理地址，减少了一次内核态到用户态的内存拷贝操作。
 
