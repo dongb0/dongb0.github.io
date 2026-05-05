@@ -1,11 +1,12 @@
 ---
 layout: post
-title: "[Linux] All you should know abot Process and Thread"
-subtitle: 
+title: "[Linux] Process and Thread"
+subtitle: All you need to know abot processes and threads
 author: "Dongbo"
 header-style: text
 mathjax: true
 hidden: false
+catalog: true
 tags:
   - Linux
 ---
